@@ -12,7 +12,7 @@ import { Input } from "@repo/ui/input"
 import { Label } from "@repo/ui/label"
 import { Switch } from "@repo/ui/switch"
 import { Skeleton } from "@repo/ui/skeleton"
-import { LocationPicker, type Place } from "@/components/maps/LocationPicker"
+import { LocationPicker, type Place } from "@/components/maps/location-picker"
 import { CompanyIcon, PlusIcon, IconX } from "@repo/ui/icons"
 
 interface Company {

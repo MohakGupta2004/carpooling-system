@@ -5,19 +5,20 @@ import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "react-hot-toast"
 import { api } from "@/lib/api"
-import { PageHeader } from "@/components/ui/page-header"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { PageHeader } from "@repo/ui/page-header"
+import { Card, CardContent } from "@repo/ui/card"
+import { Button } from "@repo/ui/button"
+import { Badge } from "@repo/ui/badge"
+import { Input } from "@repo/ui/input"
+import { Label } from "@repo/ui/label"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@repo/ui/select"
+import { CardGridSkeleton } from "@repo/ui/page-skeleton"
 import {
   CompanyIcon,
   PlusIcon,
@@ -25,7 +26,7 @@ import {
   UsersIcon,
   CarIcon,
   RouteIcon,
-} from "@/components/ui/icons"
+} from "@repo/ui/icons"
 
 interface Org {
   id: string
@@ -103,13 +104,28 @@ export default function OrganizationsPage() {
     setEditId(o.id)
     setEdit({ name: o.name, domain: o.domain ?? "", status: o.status })
   }
+  const saveEdit = (id: string) => {
+    const domain = edit.domain.trim()
+    update.mutate({
+      id,
+      data: {
+        name: edit.name.trim(),
+        status: edit.status,
+        // The API rejects a blank domain (min 3 chars) — omit it instead.
+        ...(domain ? { domain } : {}),
+      },
+    })
+  }
+  // Mirrors createOrgSchema on the API so a submit can't bounce back as a 400.
   const validNew =
-    form.name.trim() &&
-    /^[a-z0-9-]{2,}$/.test(form.slug) &&
-    form.domain.trim() &&
-    form.adminName.trim() &&
+    form.name.trim().length >= 2 &&
+    /^[a-z0-9-]{2,60}$/.test(form.slug) &&
+    form.domain.trim().length >= 3 &&
+    form.adminName.trim().length >= 2 &&
     /.+@.+\..+/.test(form.adminEmail) &&
-    form.adminPassword.length >= 8
+    form.adminPassword.length >= 8 &&
+    form.adminPassword.length <= 128
+  const validEdit = edit.name.trim().length >= 2
   const list = orgs.data ?? []
 
   return (
@@ -210,6 +226,23 @@ export default function OrganizationsPage() {
         </Card>
       )}
 
+      {orgs.isLoading && <CardGridSkeleton count={4} />}
+
+      {orgs.isError && (
+        <Card>
+          <CardContent className="space-y-3 p-10 text-center">
+            <p className="text-sm text-muted-foreground">
+              {orgs.error instanceof Error
+                ? orgs.error.message
+                : "Could not load organizations."}
+            </p>
+            <Button size="sm" variant="outline" onClick={() => orgs.refetch()}>
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid gap-4 lg:grid-cols-2">
         {list.map((o) => (
           <Card
@@ -230,9 +263,7 @@ export default function OrganizationsPage() {
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-1.5">
-                  <Badge
-                    variant={o.status === "ACTIVE" ? "success" : "warning"}
-                  >
+                  <Badge variant={o.status === "ACTIVE" ? "eco" : "warning"}>
                     {o.status}
                   </Badge>
                 </div>
@@ -271,10 +302,10 @@ export default function OrganizationsPage() {
                   <div className="flex gap-2">
                     <Button
                       size="sm"
-                      onClick={() => update.mutate({ id: o.id, data: edit })}
-                      disabled={update.isPending}
+                      onClick={() => saveEdit(o.id)}
+                      disabled={!validEdit || update.isPending}
                     >
-                      Save
+                      {update.isPending ? "Saving…" : "Save"}
                     </Button>
                     <Button
                       size="sm"
@@ -310,10 +341,12 @@ export default function OrganizationsPage() {
                     />
                   </div>
                   <div className="flex flex-wrap items-center gap-2 border-t border-border pt-3">
-                    <Button size="sm" variant="outline" asChild>
-                      <Link href={`/admin/organizations/${o.id}`}>
-                        View details
-                      </Link>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      render={<Link href={`/admin/organizations/${o.id}`} />}
+                    >
+                      View details
                     </Button>
                     <Button
                       size="sm"
@@ -327,6 +360,7 @@ export default function OrganizationsPage() {
                         size="sm"
                         variant="ghost"
                         className="ml-auto text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        disabled={archive.isPending}
                         onClick={() => {
                           if (
                             confirm(
@@ -343,6 +377,7 @@ export default function OrganizationsPage() {
                         size="sm"
                         variant="outline"
                         className="ml-auto"
+                        disabled={update.isPending}
                         onClick={() =>
                           update.mutate({
                             id: o.id,
@@ -361,7 +396,7 @@ export default function OrganizationsPage() {
         ))}
       </div>
 
-      {!orgs.isLoading && list.length === 0 && (
+      {!orgs.isLoading && !orgs.isError && list.length === 0 && (
         <Card>
           <CardContent className="p-10 text-center text-sm text-muted-foreground">
             No organizations yet.
@@ -415,7 +450,11 @@ function Dropdown({
   options: [string, string][]
 }) {
   return (
-    <Select value={value} onValueChange={onChange}>
+    <Select
+      items={options.map(([v, l]) => ({ value: v, label: l }))}
+      value={value}
+      onValueChange={(v) => v && onChange(v)}
+    >
       <SelectTrigger>
         <SelectValue />
       </SelectTrigger>

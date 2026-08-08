@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
-import { LocationPicker, type Place } from "@/components/maps/LocationPicker"
+import { LocationPicker, type Place } from "@/components/maps/location-picker"
 import {
   SearchIcon,
   StarFilledIcon,

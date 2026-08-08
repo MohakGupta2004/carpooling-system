@@ -4,19 +4,19 @@ import Link from "next/link"
 import { useParams } from "next/navigation"
 import { useQuery } from "@tanstack/react-query"
 import { api } from "@/lib/api"
-import { PageHeader } from "@/components/ui/page-header"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Skeleton } from "@/components/ui/skeleton"
+import { PageHeader } from "@repo/ui/page-header"
+import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/card"
+import { Button } from "@repo/ui/button"
+import { Badge } from "@repo/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/avatar"
+import { Skeleton } from "@repo/ui/skeleton"
 import {
   CompanyIcon,
   UsersIcon,
   CarIcon,
   RouteIcon,
   PhoneIcon,
-} from "@/components/ui/icons"
+} from "@repo/ui/icons"
 
 interface OrgUser {
   id: string
@@ -50,16 +50,17 @@ interface OrgDetail {
 
 const initials = (n: string) =>
   n
-    .split(" ")
-    .map((x) => x[0])
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((x) => x[0] ?? "")
     .join("")
     .toUpperCase()
-const isAdmin = (u: OrgUser) =>
-  u.roles.some(
-    (r) => r.role.key === "COMPANY_ADMIN" || r.role.key === "SUPER_ADMIN"
-  )
-const statusVariant = (s: string): "success" | "warning" | "destructive" =>
-  s === "ACTIVE" ? "success" : s === "PENDING" ? "warning" : "destructive"
+const isAdminRole = (r: { role: { key: string } }) =>
+  r.role.key === "COMPANY_ADMIN" || r.role.key === "SUPER_ADMIN"
+const isAdmin = (u: OrgUser) => u.roles.some(isAdminRole)
+const statusVariant = (s: string): "eco" | "warning" | "destructive" =>
+  s === "ACTIVE" ? "eco" : s === "PENDING" ? "warning" : "destructive"
 
 export default function OrgDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -69,6 +70,31 @@ export default function OrgDetailPage() {
     enabled: !!id,
   })
 
+  if (q.isError) {
+    return (
+      <Card>
+        <CardContent className="space-y-3 p-10 text-center">
+          <p className="text-sm text-muted-foreground">
+            {q.error instanceof Error
+              ? q.error.message
+              : "Could not load this organization."}
+          </p>
+          <div className="flex justify-center gap-2">
+            <Button size="sm" variant="outline" onClick={() => q.refetch()}>
+              Retry
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              render={<Link href="/admin/organizations" />}
+            >
+              Back to organizations
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
   if (q.isLoading || !q.data) {
     return (
       <div className="space-y-4">
@@ -88,11 +114,15 @@ export default function OrgDetailPage() {
         description={`${o.slug} · ${o.domain ?? "—"}`}
         action={
           <div className="flex items-center gap-2">
-            <Badge variant={o.status === "ACTIVE" ? "success" : "warning"}>
+            <Badge variant={o.status === "ACTIVE" ? "eco" : "warning"}>
               {o.status}
             </Badge>
-            <Button size="sm" variant="outline" asChild>
-              <Link href="/admin/organizations">Back</Link>
+            <Button
+              size="sm"
+              variant="outline"
+              render={<Link href="/admin/organizations" />}
+            >
+              Back
             </Button>
           </div>
         }
@@ -292,8 +322,6 @@ export default function OrgDetailPage() {
   )
 }
 
-const isAdminRole = (r: { role: { key: string } }) =>
-  r.role.key === "COMPANY_ADMIN" || r.role.key === "SUPER_ADMIN"
 function Stat({
   icon,
   label,

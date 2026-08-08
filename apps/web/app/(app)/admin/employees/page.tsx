@@ -6,27 +6,29 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "react-hot-toast"
 import { api } from "@/lib/api"
 import { useAuth } from "@/stores/auth"
-import { PageHeader } from "@/components/ui/page-header"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { PageHeader } from "@repo/ui/page-header"
+import { Card, CardContent } from "@repo/ui/card"
+import { Button } from "@repo/ui/button"
+import { Badge } from "@repo/ui/badge"
+import { Input } from "@repo/ui/input"
+import { Label } from "@repo/ui/label"
+import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/avatar"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { ApproveIcon } from "@/components/ui/icons"
+} from "@repo/ui/select"
+import { ListSkeleton } from "@repo/ui/page-skeleton"
+import { ApproveIcon } from "@repo/ui/icons"
 
 interface Employee {
   id: string
   fullName: string
   email: string
   status: string
+  photoUrl: string | null
   department: { name: string } | null
   roles: { role: { name: string } }[]
 }
@@ -35,6 +37,20 @@ interface Department {
   id: string
   name: string
 }
+
+const initials = (n: string) =>
+  n
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((x) => x[0] ?? "")
+    .join("")
+    .toUpperCase()
+
+const ROLE_ITEMS = [
+  { value: "EMPLOYEE", label: "Employee" },
+  { value: "COMPANY_ADMIN", label: "Company Admin" },
+]
 
 const EMPTY = {
   fullName: "",
@@ -116,7 +132,17 @@ export default function EmployeesPage() {
   const formValid =
     form.fullName.trim().length >= 2 &&
     /.+@.+\..+/.test(form.email) &&
-    form.password.length >= 8
+    form.password.length >= 8 &&
+    form.password.length <= 128
+
+  const departmentItems = [
+    { value: "none", label: "No department" },
+    ...(company.data?.departments ?? []).map((d) => ({
+      value: d.id,
+      label: d.name,
+    })),
+  ]
+  const list = employees.data ?? []
 
   return (
     <div>
@@ -211,9 +237,10 @@ export default function EmployeesPage() {
             <div className="space-y-1">
               <Label>Role</Label>
               <Select
+                items={ROLE_ITEMS}
                 value={form.role}
                 onValueChange={(v) =>
-                  setForm({ ...form, role: v as typeof form.role })
+                  v && setForm({ ...form, role: v as typeof form.role })
                 }
               >
                 <SelectTrigger>
@@ -230,9 +257,13 @@ export default function EmployeesPage() {
             <div className="space-y-1">
               <Label>Department (optional)</Label>
               <Select
+                items={departmentItems}
                 value={form.departmentId || "none"}
                 onValueChange={(v) =>
-                  setForm({ ...form, departmentId: v === "none" ? "" : v })
+                  setForm({
+                    ...form,
+                    departmentId: !v || v === "none" ? "" : v,
+                  })
                 }
               >
                 <SelectTrigger>
@@ -260,71 +291,107 @@ export default function EmployeesPage() {
         </Card>
       )}
 
-      <Card>
-        <CardContent className="p-0">
-          <div className="divide-y divide-border">
-            {employees.data?.map((e) => (
-              <div
-                key={e.id}
-                className="flex flex-wrap items-center justify-between gap-3 px-5 py-3"
-              >
-                <div className="flex items-center gap-3">
-                  <Avatar>
-                    <AvatarFallback>
-                      {e.fullName
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="text-sm font-medium">{e.fullName}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {e.email} · {e.department?.name ?? "—"} ·{" "}
-                      {e.roles[0]?.role.name}
-                    </p>
+      {employees.isLoading ? (
+        <Card>
+          <CardContent className="p-5">
+            <ListSkeleton rows={6} />
+          </CardContent>
+        </Card>
+      ) : employees.isError ? (
+        <Card>
+          <CardContent className="space-y-3 p-10 text-center">
+            <p className="text-sm text-muted-foreground">
+              {employees.error instanceof Error
+                ? employees.error.message
+                : "Could not load employees."}
+            </p>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => employees.refetch()}
+            >
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
+      ) : list.length === 0 ? (
+        <Card>
+          <CardContent className="p-10 text-center text-sm text-muted-foreground">
+            No employees yet.
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardContent className="p-0">
+            <div className="divide-y divide-border">
+              {list.map((e) => (
+                <div
+                  key={e.id}
+                  className="flex flex-wrap items-center justify-between gap-3 px-5 py-3"
+                >
+                  <div className="flex items-center gap-3">
+                    <Avatar>
+                      <AvatarImage src={e.photoUrl || undefined} />
+                      <AvatarFallback>{initials(e.fullName)}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="text-sm font-medium">{e.fullName}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {e.email} · {e.department?.name ?? "—"} ·{" "}
+                        {e.roles[0]?.role.name ?? "—"}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge
-                    variant={
-                      e.status === "ACTIVE"
-                        ? "success"
-                        : e.status === "PENDING"
-                          ? "warning"
-                          : "destructive"
-                    }
-                  >
-                    {e.status}
-                  </Badge>
-                  <Button size="sm" variant="outline" asChild>
-                    <Link href={`/admin/employees/${e.id}`}>View details</Link>
-                  </Button>
-                  {e.status !== "ACTIVE" && (
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant={
+                        e.status === "ACTIVE"
+                          ? "eco"
+                          : e.status === "PENDING"
+                            ? "warning"
+                            : "destructive"
+                      }
+                    >
+                      {e.status}
+                    </Badge>
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => act.mutate({ id: e.id, verb: "approve" })}
+                      render={<Link href={`/admin/employees/${e.id}`} />}
                     >
-                      <ApproveIcon /> Approve
+                      View details
                     </Button>
-                  )}
-                  {e.status === "ACTIVE" && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="text-orange-600 hover:bg-orange-50 hover:text-orange-700"
-                      onClick={() => act.mutate({ id: e.id, verb: "suspend" })}
-                    >
-                      Suspend
-                    </Button>
-                  )}
+                    {e.status !== "ACTIVE" ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={act.isPending}
+                        onClick={() =>
+                          act.mutate({ id: e.id, verb: "approve" })
+                        }
+                      >
+                        <ApproveIcon /> Approve
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-warning hover:bg-warning/10 hover:text-warning"
+                        disabled={act.isPending}
+                        onClick={() =>
+                          act.mutate({ id: e.id, verb: "suspend" })
+                        }
+                      >
+                        Suspend
+                      </Button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }
