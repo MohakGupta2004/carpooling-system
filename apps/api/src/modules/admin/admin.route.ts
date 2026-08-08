@@ -8,16 +8,16 @@ import { Prisma } from '@prisma/client';
 import { Router } from 'express';
 import { z } from 'zod';
 
-import { env } from '../config/env.js';
-import { BadRequest, Conflict, NotFound } from '../lib/errors.js';
-import { asyncHandler, created, ok } from '../lib/http.js';
-import { sendMail, welcomeAccountEmail } from '../lib/mailer.js';
-import { hashPassword } from '../lib/password.js';
-import { prisma } from '../lib/prisma.js';
-import { authenticate } from '../middleware/authenticate.js';
-import { requirePermission } from '../middleware/requirePermission.js';
-import { validate, vbody, vparams, vquery } from '../middleware/validate.js';
-import { notifyUser } from '../realtime/emit.ts';
+import { env } from '../../config/env.js';
+import { BadRequest, Conflict, NotFound } from '../../lib/errors.js';
+import { asyncHandler, created, ok } from '../../lib/http.js';
+import { sendMail, welcomeAccountEmail } from '../../lib/mailer.js';
+import { hashPassword } from '../../lib/password.js';
+import { prisma } from '../../lib/prisma.js';
+import { authenticate } from '../../middleware/authenticate.js';
+import { requirePermission } from '../../middleware/requirePermission.js';
+import { validate, vbody, vparams, vquery } from '../../middleware/validate.js';
+import { notifyUser } from '../../realtime/emit.ts';
 
 const router = Router();
 router.use(authenticate);

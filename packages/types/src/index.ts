@@ -4,3 +4,5 @@ export * from './auth.js';
 export * from './user.js';
 
 export * from './company.js';
+export * from './vehicle.js';
+export * from './trip.js';
