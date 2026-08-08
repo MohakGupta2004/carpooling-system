@@ -4,6 +4,7 @@ import { flags } from './config/flags.js';
 import authRoutes from './modules/auth/auth.route.ts';
 import companiesRoutes from './modules/companies/companies.route.ts';
 import organizationsRoutes from './modules/organizations/organizations.route.ts';
+import reportsRoutes from './modules/reports/reports.routes.js';
 import { bookingsRouter, tripsRouter } from './modules/trips/trips.route.ts';
 import userRoutes from './modules/user/user.route.ts';
 
@@ -18,3 +19,4 @@ api.use('/admin', (_req, res) => {
 });
 api.use('/trips', tripsRouter);
 api.use('/bookings', bookingsRouter);
+api.use('/reports', reportsRoutes);
