@@ -49,7 +49,7 @@ const features = [
 export default function LoginPage() {
   const router = useRouter()
   const setSession = useAuth((s) => s.setSession)
-  const [email, setEmail] = useState("ankit@odoo.com")
+  const [email, setEmail] = useState("mohak@odoo.com")
   const [password, setPassword] = useState("Password123!")
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -276,27 +276,19 @@ export default function LoginPage() {
             <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
               <div className="flex items-center gap-1.5">
                 <span className="size-1.5 rounded-full bg-primary" />
-                ankit@odoo.com
+                mohak@odoo.com
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="size-1.5 rounded-full bg-secondary" />
-                priya@odoo.com
+                pramit@odoo.com
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="size-1.5 rounded-full bg-primary/60" />
-                jaanvi@odoo.com
+                dia@odoo.com
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="size-1.5 rounded-full bg-secondary/60" />
-                raj@odoo.com
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="size-1.5 rounded-full bg-primary/40" />
-                meera@odoo.com
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="size-1.5 rounded-full bg-secondary/40" />
-                sahil@odoo.com
+                shubhodeep@odoo.com
               </div>
             </div>
           </motion.div>

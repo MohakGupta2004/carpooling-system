@@ -1,10 +1,10 @@
-import { PageHeaderSkeleton, ListSkeleton } from "@repo/ui/page-skeleton"
+import { PageHeaderSkeleton, FormSkeleton } from "@/components/ui/page-skeleton"
 
 export default function Loading() {
   return (
     <div className="space-y-6">
       <PageHeaderSkeleton />
-      <ListSkeleton rows={8} />
+      <FormSkeleton fields={6} />
     </div>
   )
 }

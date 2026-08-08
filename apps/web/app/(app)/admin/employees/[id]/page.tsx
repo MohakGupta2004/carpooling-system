@@ -5,13 +5,13 @@ import { useParams } from "next/navigation"
 import { useQuery } from "@tanstack/react-query"
 import { api } from "@/lib/api"
 import { inr } from "@/lib/utils"
-import { PageHeader } from "@/components/ui/page-header"
-import { StatCard } from "@/components/ui/stat-card"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Skeleton } from "@/components/ui/skeleton"
+import { PageHeader } from "@repo/ui/page-header"
+import { StatCard } from "@repo/ui/stat-card"
+import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/card"
+import { Button } from "@repo/ui/button"
+import { Badge } from "@repo/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/avatar"
+import { Skeleton } from "@repo/ui/skeleton"
 import {
   CarIcon,
   RouteIcon,
@@ -19,7 +19,7 @@ import {
   EcoIcon,
   WalletIcon,
   VerifiedIcon,
-} from "@/components/ui/icons"
+} from "@repo/ui/icons"
 
 interface Vehicle {
   id: string
@@ -67,12 +67,14 @@ interface EmployeeDetail {
 
 const initials = (n: string) =>
   n
-    .split(" ")
-    .map((x) => x[0])
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((x) => x[0] ?? "")
     .join("")
     .toUpperCase()
-const vBadge = (v: string): "success" | "destructive" | "warning" =>
-  v === "VERIFIED" ? "success" : v === "REJECTED" ? "destructive" : "warning"
+const vBadge = (v: string): "eco" | "destructive" | "warning" =>
+  v === "VERIFIED" ? "eco" : v === "REJECTED" ? "destructive" : "warning"
 
 export default function EmployeeDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -82,6 +84,30 @@ export default function EmployeeDetailPage() {
     enabled: !!id,
   })
 
+  if (q.isError)
+    return (
+      <Card>
+        <CardContent className="space-y-3 p-10 text-center">
+          <p className="text-sm text-muted-foreground">
+            {q.error instanceof Error
+              ? q.error.message
+              : "Could not load this employee."}
+          </p>
+          <div className="flex justify-center gap-2">
+            <Button size="sm" variant="outline" onClick={() => q.refetch()}>
+              Retry
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              render={<Link href="/admin/employees" />}
+            >
+              Back to employees
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    )
   if (q.isLoading || !q.data)
     return (
       <div className="space-y-4">
@@ -91,6 +117,7 @@ export default function EmployeeDetailPage() {
     )
   const e = q.data
   const s = e.stats
+  const rating = Number(e.rating)
 
   return (
     <div className="space-y-6">
@@ -102,7 +129,7 @@ export default function EmployeeDetailPage() {
             <Badge
               variant={
                 e.status === "ACTIVE"
-                  ? "success"
+                  ? "eco"
                   : e.status === "PENDING"
                     ? "warning"
                     : "destructive"
@@ -110,8 +137,12 @@ export default function EmployeeDetailPage() {
             >
               {e.status}
             </Badge>
-            <Button size="sm" variant="outline" asChild>
-              <Link href="/admin/employees">Back</Link>
+            <Button
+              size="sm"
+              variant="outline"
+              render={<Link href="/admin/employees" />}
+            >
+              Back
             </Button>
           </div>
         }
@@ -140,7 +171,10 @@ export default function EmployeeDetailPage() {
               <Row label="Phone" value={e.phone ?? "—"} />
               <Row label="Gender" value={e.gender ?? "—"} />
               <Row label="Home" value={e.homeAddress ?? "—"} />
-              <Row label="Rating" value={`${(+e.rating).toFixed(1)} ★`} />
+              <Row
+                label="Rating"
+                value={Number.isFinite(rating) ? `${rating.toFixed(1)} ★` : "—"}
+              />
               <Row label="Eco points" value={`${e.ecoPoints} 🍃`} />
               <Row
                 label="Member since"
