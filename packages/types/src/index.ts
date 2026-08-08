@@ -6,3 +6,4 @@ export * from './common.js';
 export * from './company.js';
 export * from './vehicle.js';
 export * from './trip.js';
+export * from './ride.js';
