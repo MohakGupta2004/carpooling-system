@@ -1,6 +1,7 @@
 import type { LatLng } from '@carpool/types';
 
 import { env } from '../config/env.js';
+import { logger } from './logger.js';
 
 const R = 6371000; // earth radius m
 const toRad = (d: number) => (d * Math.PI) / 180;
@@ -51,8 +52,80 @@ export interface RouteResult {
   provider: 'google' | 'estimate';
 }
 
+const ROUTES_URL = 'https://routes.googleapis.com/directions/v2:computeRoutes';
+
+const waypoint = (p: LatLng) => ({
+  location: { latLng: { latitude: p.lat, longitude: p.lng } },
+});
+
+interface ComputedRoute {
+  distanceMeters?: number;
+  /** Routes API returns a protobuf duration string, e.g. "4523s". */
+  duration?: string;
+  polyline?: { encodedPolyline?: string };
+  optimizedIntermediateWaypointIndex?: number[];
+}
+
 /**
- * Directions. Uses Google Directions when a key is configured; otherwise
+ * One call to Routes API `computeRoutes`. Returns null (and logs why) on any
+ * failure so callers can drop to the offline estimate.
+ *
+ * NOTE: the legacy Directions API (`maps.googleapis.com/maps/api/directions`)
+ * is not available to Cloud projects created after March 2025 — it answers
+ * REQUEST_DENIED / "You're calling a legacy API". Routes API replaces it.
+ */
+async function computeRoutes(
+  origin: LatLng,
+  destination: LatLng,
+  intermediates: LatLng[],
+  optimize: boolean
+): Promise<ComputedRoute | null> {
+  const fields = [
+    'routes.distanceMeters',
+    'routes.duration',
+    'routes.polyline.encodedPolyline',
+    ...(optimize ? ['routes.optimizedIntermediateWaypointIndex'] : []),
+  ];
+  try {
+    const res = await fetch(ROUTES_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': env.googleMapsKey,
+        'X-Goog-FieldMask': fields.join(','),
+      },
+      body: JSON.stringify({
+        origin: waypoint(origin),
+        destination: waypoint(destination),
+        intermediates: intermediates.map(waypoint),
+        travelMode: 'DRIVE',
+        routingPreference: 'TRAFFIC_AWARE',
+        optimizeWaypointOrder: optimize && intermediates.length > 0,
+        polylineEncoding: 'ENCODED_POLYLINE',
+      }),
+    });
+    const json = (await res.json()) as { routes?: ComputedRoute[]; error?: { message?: string } };
+    if (!res.ok || json.error) {
+      // Silent fallbacks are why a straight line shows up on the map with no
+      // clue as to the cause — always say what Google rejected.
+      logger.warn(
+        { status: res.status, err: json.error?.message },
+        'Routes API failed — falling back to straight-line estimate'
+      );
+      return null;
+    }
+    return json.routes?.[0] ?? null;
+  } catch (err) {
+    logger.warn({ err: (err as Error).message }, 'Routes API request threw — using estimate');
+    return null;
+  }
+}
+
+/** Routes API durations are strings like "4523s". */
+const parseDuration = (d: string | undefined): number => Math.round(Number.parseFloat(d ?? '0'));
+
+/**
+ * Directions. Uses the Google Routes API when a key is configured; otherwise
  * returns a road-factor estimate so the whole flow works offline in dev.
  */
 export async function getRoute(
@@ -61,33 +134,14 @@ export async function getRoute(
   waypoints: LatLng[] = []
 ): Promise<RouteResult> {
   if (env.googleMapsKey) {
-    try {
-      const wp = waypoints.map((w) => `${w.lat},${w.lng}`).join('|');
-      const url = new URL('https://maps.googleapis.com/maps/api/directions/json');
-      url.searchParams.set('origin', `${origin.lat},${origin.lng}`);
-      url.searchParams.set('destination', `${destination.lat},${destination.lng}`);
-      if (wp) url.searchParams.set('waypoints', wp);
-      url.searchParams.set('key', env.googleMapsKey);
-      const res = await fetch(url);
-      const json = (await res.json()) as any;
-      const route = json.routes?.[0];
-      if (route) {
-        const leg = route.legs.reduce(
-          (acc: { d: number; t: number }, l: any) => ({
-            d: acc.d + l.distance.value,
-            t: acc.t + l.duration.value,
-          }),
-          { d: 0, t: 0 }
-        );
-        return {
-          distanceM: leg.d,
-          durationS: leg.t,
-          polyline: route.overview_polyline?.points ?? null,
-          provider: 'google',
-        };
-      }
-    } catch {
-      /* fall through to estimate */
+    const route = await computeRoutes(origin, destination, waypoints, false);
+    if (route?.distanceMeters) {
+      return {
+        distanceM: route.distanceMeters,
+        durationS: parseDuration(route.duration),
+        polyline: route.polyline?.encodedPolyline ?? null,
+        provider: 'google',
+      };
     }
   }
 
@@ -131,9 +185,10 @@ function nearestNeighborOrder(start: LatLng, pts: LatLng[]): number[] {
 }
 
 /**
- * Multi-stop route that also OPTIMIZES the pickup order. Google Directions with
- * `waypoints=optimize:true` returns the best visiting order (`waypoint_order`);
- * we fall back to nearest-neighbour when no key is configured.
+ * Multi-stop route that also OPTIMIZES the pickup order. Routes API with
+ * `optimizeWaypointOrder` returns the best visiting order
+ * (`optimizedIntermediateWaypointIndex`); we fall back to nearest-neighbour
+ * when no key is configured.
  */
 export async function getOptimizedRoute(
   origin: LatLng,
@@ -141,34 +196,15 @@ export async function getOptimizedRoute(
   waypoints: LatLng[]
 ): Promise<RoutePlan> {
   if (env.googleMapsKey && waypoints.length > 0) {
-    try {
-      const wp = 'optimize:true|' + waypoints.map((w) => `${w.lat},${w.lng}`).join('|');
-      const url = new URL('https://maps.googleapis.com/maps/api/directions/json');
-      url.searchParams.set('origin', `${origin.lat},${origin.lng}`);
-      url.searchParams.set('destination', `${destination.lat},${destination.lng}`);
-      url.searchParams.set('waypoints', wp);
-      url.searchParams.set('key', env.googleMapsKey);
-      const res = await fetch(url);
-      const json = (await res.json()) as any;
-      const route = json.routes?.[0];
-      if (route) {
-        const leg = route.legs.reduce(
-          (acc: { d: number; t: number }, l: any) => ({
-            d: acc.d + l.distance.value,
-            t: acc.t + l.duration.value,
-          }),
-          { d: 0, t: 0 }
-        );
-        return {
-          distanceM: leg.d,
-          durationS: leg.t,
-          polyline: route.overview_polyline?.points ?? null,
-          order: (route.waypoint_order as number[]) ?? waypoints.map((_, i) => i),
-          provider: 'google',
-        };
-      }
-    } catch {
-      /* fall through */
+    const route = await computeRoutes(origin, destination, waypoints, true);
+    if (route?.distanceMeters) {
+      return {
+        distanceM: route.distanceMeters,
+        durationS: parseDuration(route.duration),
+        polyline: route.polyline?.encodedPolyline ?? null,
+        order: route.optimizedIntermediateWaypointIndex ?? waypoints.map((_, i) => i),
+        provider: 'google',
+      };
     }
   }
 

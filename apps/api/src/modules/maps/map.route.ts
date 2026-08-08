@@ -99,11 +99,18 @@ router.get(
   validate({ query: z.object({ q: z.string().min(2).max(160) }) }),
   asyncHandler(async (req, res) => {
     const { q } = vquery<{ q: string }>(req);
+    // Prefer Google Places when a key is configured (better India POI coverage
+    // + fuzzy matching); otherwise use free OpenStreetMap/Nominatim.
+    if (env.googleMapsKey) {
+      try {
+        ok(res, await geocodeGoogle(q));
+        return;
+      } catch (err) {
+        logger.warn({ err: (err as Error).message }, 'Places API geocode failed — using Nominatim');
+      }
+    }
     try {
-      // Prefer Google Geocoding when a key is configured (better India POI
-      // coverage + fuzzy matching); otherwise use free OpenStreetMap/Nominatim.
-      const results = env.googleMapsKey ? await geocodeGoogle(q) : await geocodeNominatim(q);
-      ok(res, results);
+      ok(res, await geocodeNominatim(q));
     } catch (err) {
       logger.warn({ err: (err as Error).message }, 'geocode failed');
       ok(res, [] as Place[]);
@@ -159,26 +166,38 @@ async function geocodeNominatim(q: string): Promise<Place[]> {
 }
 
 async function geocodeGoogle(q: string): Promise<Place[]> {
-  // Places Text Search handles partial input + POI names far better than the
-  // plain Geocoding API, and still returns coordinates in one call.
-  const url = new URL('https://maps.googleapis.com/maps/api/place/textsearch/json');
-  url.searchParams.set('query', q);
-  url.searchParams.set('region', 'in');
-  url.searchParams.set('key', env.googleMapsKey);
-  const r = await fetch(url);
+  // Places API (New) Text Search — handles partial input + POI names far better
+  // than the plain Geocoding API, and still returns coordinates in one call.
+  // The legacy `/maps/api/place/textsearch` endpoint is unavailable to Cloud
+  // projects created after March 2025, so we use the v1 endpoint.
+  const r = await fetch('https://places.googleapis.com/v1/places:searchText', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Goog-Api-Key': env.googleMapsKey,
+      'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.location',
+    },
+    body: JSON.stringify({ textQuery: q, regionCode: 'IN', maxResultCount: 6 }),
+  });
   const json = (await r.json()) as {
-    results?: Array<{
-      name?: string;
-      formatted_address: string;
-      geometry: { location: { lat: number; lng: number } };
+    places?: Array<{
+      displayName?: { text?: string };
+      formattedAddress?: string;
+      location?: { latitude: number; longitude: number };
     }>;
+    error?: { message?: string };
   };
-  return (json.results ?? []).slice(0, 6).map((row) => ({
-    label: row.name || row.formatted_address.split(',')[0]!,
-    address: row.formatted_address,
-    lat: row.geometry.location.lat,
-    lng: row.geometry.location.lng,
-  }));
+  if (!r.ok || json.error) {
+    throw new Error(json.error?.message ?? `Places API returned ${r.status}`);
+  }
+  return (json.places ?? [])
+    .filter((row) => row.location)
+    .map((row) => ({
+      label: row.displayName?.text || row.formattedAddress?.split(',')[0] || q,
+      address: row.formattedAddress ?? '',
+      lat: row.location!.latitude,
+      lng: row.location!.longitude,
+    }));
 }
 
 export default router;
