@@ -114,6 +114,9 @@
     "packages/types": {
       "name": "@carpool/types",
       "version": "0.0.0",
+      "dependencies": {
+        "zod": "^3.24.1",
+      },
       "devDependencies": {
         "typescript": "^5.6.3",
       },
