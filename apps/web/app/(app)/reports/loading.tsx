@@ -2,7 +2,7 @@ import {
   PageHeaderSkeleton,
   StatCardsSkeleton,
   PanelSkeleton,
-} from "@repo/ui/page-skeleton"
+} from "@/components/ui/page-skeleton"
 
 export default function Loading() {
   return (
