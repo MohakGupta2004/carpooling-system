@@ -5,19 +5,19 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "react-hot-toast"
 import { api } from "@/lib/api"
 import { inr } from "@/lib/utils"
-import { PageHeader } from "@/components/ui/page-header"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Skeleton } from "@/components/ui/skeleton"
-import { SeatIndicator } from "@/components/ui/seats"
+import { PageHeader } from "@repo/ui/page-header"
+import { Card, CardContent } from "@repo/ui/card"
+import { Button } from "@repo/ui/button"
+import { Badge } from "@repo/ui/badge"
+import { Avatar, AvatarFallback } from "@repo/ui/avatar"
+import { Skeleton } from "@repo/ui/skeleton"
+import { SeatIndicator } from "@repo/ui/seats"
 import {
   DriveIcon,
   PlusIcon,
   ClockIcon,
   RouteIcon,
-} from "@/components/ui/icons"
+} from "@repo/ui/icons"
 
 interface Passenger {
   fullName: string
