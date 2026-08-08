@@ -1,7 +1,4 @@
-import {
-  PageHeaderSkeleton,
-  TableSkeleton,
-} from "@/components/ui/page-skeleton"
+import { PageHeaderSkeleton, TableSkeleton } from "@repo/ui/page-skeleton"
 
 export default function Loading() {
   return (
