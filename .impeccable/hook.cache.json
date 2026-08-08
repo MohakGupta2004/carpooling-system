@@ -68,6 +68,19 @@
           "findings": []
         }
       }
+    },
+    "3d46e23b-8107-41fd-95a1-bbfa8e42d8a9": {
+      "updatedAt": 1786189712062,
+      "files": {
+        "/Users/mohakgupta/Projects/carpooling-system/apps/web/components/providers.tsx": {
+          "editCount": 1,
+          "findings": []
+        },
+        "/Users/mohakgupta/Projects/carpooling-system/apps/web/app/layout.tsx": {
+          "editCount": 1,
+          "findings": []
+        }
+      }
     }
   }
 }

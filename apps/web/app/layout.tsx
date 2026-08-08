@@ -3,6 +3,7 @@ import { Host_Grotesk, Space_Grotesk, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
+import { Providers } from "@/components/providers"
 
 const hostGrotesk = Host_Grotesk({
   subsets: ["latin"],
@@ -39,7 +40,9 @@ export default function RootLayout({
       )}
     >
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <Providers>
+          <ThemeProvider>{children}</ThemeProvider>
+        </Providers>
       </body>
     </html>
   )
