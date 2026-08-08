@@ -114,6 +114,19 @@
           "findings": []
         }
       }
+    },
+    "e847f6d1-8e81-4659-9845-8d6d0dc57263": {
+      "updatedAt": 1786199760823,
+      "files": {
+        "/Users/mohakgupta/Projects/carpooling-system/apps/api/src/modules/reports/reports.service.ts": {
+          "editCount": 1,
+          "findings": []
+        },
+        "/private/tmp/claude-501/-Users-mohakgupta-Projects-carpooling-system/e847f6d1-8e81-4659-9845-8d6d0dc57263/scratchpad/smoke.ts": {
+          "editCount": 2,
+          "findings": []
+        }
+      }
     }
   }
 }
