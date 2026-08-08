@@ -3,13 +3,13 @@ import { Router } from 'express';
 import multer from 'multer';
 import { z } from 'zod';
 
-import { isCloudinaryConfigured, uploadImage } from '../lib/cloudinary';
-import { BadRequest } from '../lib/errors';
-import { asyncHandler, created, ok } from '../lib/http';
-import { prisma } from '../lib/prisma';
-import { authenticate } from '../middleware/authenticate';
-import { requirePermission } from '../middleware/requirePermission';
-import { validate, vbody, vparams } from '../middleware/validate';
+import { isCloudinaryConfigured, uploadImage } from '../../lib/cloudinary';
+import { BadRequest } from '../../lib/errors';
+import { asyncHandler, created, ok } from '../../lib/http';
+import { prisma } from '../../lib/prisma';
+import { authenticate } from '../../middleware/authenticate';
+import { requirePermission } from '../../middleware/requirePermission';
+import { validate, vbody, vparams } from '../../middleware/validate';
 
 const router = Router();
 router.use(authenticate);
