@@ -4,11 +4,11 @@ import Link from "next/link"
 import { useQuery } from "@tanstack/react-query"
 import { api } from "@/lib/api"
 import { inr } from "@/lib/utils"
-import { PageHeader } from "@/components/ui/page-header"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
+import { PageHeader } from "@repo/ui/page-header"
+import { Card, CardContent } from "@repo/ui/card"
+import { Badge } from "@repo/ui/badge"
+import { Button } from "@repo/ui/button"
+import { Skeleton } from "@repo/ui/skeleton"
 
 interface HistoryItem {
   id: string
