@@ -2,14 +2,13 @@
 
 import { useState } from 'react';
 
+import { Button } from '@repo/ui/button';
+import { Calendar } from '@repo/ui/calendar';
+import { cn } from '@repo/ui/lib/utils';
+import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover';
 import { endOfDay, format, startOfDay, startOfMonth, subDays } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import type { DateRange } from 'react-day-picker';
-
-import { Button } from './button';
-import { Calendar } from './calendar';
-import { cn } from './lib/utils';
-import { Popover, PopoverContent, PopoverTrigger } from './popover';
 
 export interface Range {
   from: Date;
@@ -69,13 +68,15 @@ export function DateRangePicker({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button variant="outline" className={cn('justify-start gap-2 font-normal', className)}>
-          <CalendarIcon className="text-muted-foreground size-4" />
-          {label}
-        </Button>
+      <PopoverTrigger
+        render={
+          <Button variant="outline" className={cn('justify-start gap-2 font-normal', className)} />
+        }
+      >
+        <CalendarIcon className="text-muted-foreground size-4" />
+        {label}
       </PopoverTrigger>
-      <PopoverContent align="end" className="flex">
+      <PopoverContent align="end" className="flex w-auto gap-0 p-0">
         {/* presets */}
         <div className="border-border flex w-40 flex-col gap-1 border-r p-2">
           {PRESETS.map((p) => (

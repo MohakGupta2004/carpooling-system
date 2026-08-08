@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { toast } from "react-hot-toast"
 import {
   ResponsiveContainer,
   AreaChart,
@@ -20,6 +19,7 @@ import {
   Line,
   RadialBarChart,
   RadialBar,
+  type TooltipContentProps,
 } from "recharts"
 import { api } from "@/lib/api"
 import { useAuth } from "@/stores/auth"
@@ -44,7 +44,6 @@ import {
   RupeeIcon,
   FuelIcon,
   TreesIcon,
-  DownloadIcon,
 } from "@repo/ui/icons"
 
 interface Analytics {
@@ -134,15 +133,21 @@ function ChartCard({
   )
 }
 
-function ChartTip({ active, payload, label, fmt }: any) {
+type ChartTipProps = Partial<TooltipContentProps> & {
+  fmt?: (v: number) => string
+}
+
+function ChartTip({ active, payload, label, fmt }: ChartTipProps) {
   if (!active || !payload?.length) return null
   return (
     <div className="rounded-lg border border-border bg-popover px-3 py-2 text-xs shadow-md">
       {label !== undefined && <p className="mb-1 font-medium">{label}</p>}
-      {payload.map((p: any, i: number) => (
+      {payload.map((p, i) => (
         <p key={i} style={{ color: p.color ?? p.fill }}>
           {p.name}:{" "}
-          <span className="font-semibold">{fmt ? fmt(p.value) : p.value}</span>
+          <span className="font-semibold">
+            {fmt && typeof p.value === "number" ? fmt(p.value) : p.value}
+          </span>
         </p>
       ))}
     </div>
@@ -195,7 +200,7 @@ export default function OrgAnalyticsPage() {
       {isSuper && (
         <Select
           value={orgId || "__self"}
-          onValueChange={(v) => setOrgId(v === "__self" ? "" : v)}
+          onValueChange={(v) => setOrgId(!v || v === "__self" ? "" : v)}
         >
           <SelectTrigger className="w-[200px]">
             <SelectValue />
@@ -462,7 +467,10 @@ export default function OrgAnalyticsPage() {
                 tickLine={false}
                 axisLine={false}
               />
-              <Tooltip content={<ChartTip />} labelFormatter={dayLabel} />
+              <Tooltip
+                content={<ChartTip />}
+                labelFormatter={(l) => dayLabel(String(l))}
+              />
               <Area
                 type="monotone"
                 dataKey="trips"
@@ -537,7 +545,7 @@ export default function OrgAnalyticsPage() {
                 />
                 <Tooltip
                   content={<ChartTip />}
-                  labelFormatter={hourLabel}
+                  labelFormatter={(l) => hourLabel(Number(l))}
                   cursor={{ fill: "var(--muted)" }}
                 />
                 <Bar
