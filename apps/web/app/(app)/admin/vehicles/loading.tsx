@@ -1,4 +1,4 @@
-import { PageHeaderSkeleton, ListSkeleton } from "@/components/ui/page-skeleton"
+import { PageHeaderSkeleton, ListSkeleton } from "@repo/ui/page-skeleton"
 
 export default function Loading() {
   return (
