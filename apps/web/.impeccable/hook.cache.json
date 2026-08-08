@@ -84,6 +84,15 @@
           "findings": []
         }
       }
+    },
+    "06090cd0-0ba8-4887-9f20-65c350a6277a": {
+      "updatedAt": 1786231987449,
+      "files": {
+        "/Users/mohakgupta/Projects/carpooling-system/apps/api/src/modules/rides/rides.service.ts": {
+          "editCount": 3,
+          "findings": []
+        }
+      }
     }
   }
 }

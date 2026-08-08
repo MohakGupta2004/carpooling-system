@@ -6,6 +6,25 @@ import { prisma } from '../../lib/prisma.js';
 
 type LL = { lat: number; lng: number };
 
+/**
+ * Parse a `YYYY-MM-DD` search date as a LOCAL calendar day. `new Date('2026-08-09')`
+ * parses date-only strings as UTC midnight, which lands on the wrong local day for
+ * any non-UTC server — so build the parts explicitly instead.
+ */
+function localDay(date: string): [number, number, number] {
+  const [y, m, d] = date.slice(0, 10).split('-').map(Number);
+  return [y ?? 1970, (m ?? 1) - 1, d ?? 1];
+}
+
+/** Local-midnight → local end-of-day bounds for a `YYYY-MM-DD` date. */
+function dayWindow(date: string) {
+  const [y, m, d] = localDay(date);
+  return {
+    start: new Date(y, m, d, 0, 0, 0, 0),
+    end: new Date(y, m, d, 23, 59, 59, 999),
+  };
+}
+
 /** Build a PostGIS geography LineString WKT from route points (lng lat order). */
 function lineStringWkt(points: LL[]): string | null {
   if (points.length < 2) return null;
@@ -137,15 +156,14 @@ function loadRides(ids: string[]) {
  */
 async function candidateRides(
   orgId: string,
+  userId: string,
   date: string,
   seats: number,
   pickup: { lat: number; lng: number },
   drop: { lat: number; lng: number },
   radius: number
 ) {
-  const day = new Date(date);
-  const start = new Date(new Date(day).setHours(0, 0, 0, 0));
-  const end = new Date(new Date(day).setHours(23, 59, 59, 999));
+  const { start, end } = dayWindow(date);
   // Don't surface rides that already departed.
   const notBefore = new Date(Math.max(start.getTime(), Date.now() - 60 * 60_000));
 
@@ -161,6 +179,8 @@ async function candidateRides(
       AND r."seatsAvailable" >= ${seats}
       AND r."departAt" >= ${notBefore} AND r."departAt" <= ${end}
       AND r."routeGeo" IS NOT NULL
+      -- you can't be a passenger on the ride you're driving
+      AND r."driverId" <> ${userId}
       -- pickup AND drop both lie within the corridor of the ride's route
       AND ST_DWithin(r."routeGeo", ST_SetSRID(ST_MakePoint(${pickup.lng}, ${pickup.lat}), 4326)::geography, ${radius})
       AND ST_DWithin(r."routeGeo", ST_SetSRID(ST_MakePoint(${drop.lng},   ${drop.lat}),   4326)::geography, ${radius})
@@ -199,6 +219,7 @@ export async function searchRides(orgId: string, userId: string, input: SearchRi
   // Index-backed spatial prefilter in PostGIS (see candidateRides).
   const { rides, dist } = await candidateRides(
     orgId,
+    userId,
     input.date,
     input.seats,
     input.pickup,
@@ -238,8 +259,8 @@ export async function searchRides(orgId: string, userId: string, input: SearchRi
     let timeScore = 60;
     if (input.time) {
       const [h, m] = input.time.split(':').map(Number);
-      const want = new Date(input.date);
-      want.setHours(h ?? 0, m ?? 0, 0, 0);
+      const [yy, mm, dd] = localDay(input.date);
+      const want = new Date(yy, mm, dd, h ?? 0, m ?? 0, 0, 0);
       const diffMin = Math.abs(ride.departAt.getTime() - want.getTime()) / 60000;
       timeScore = 100 * Math.max(0, 1 - diffMin / 120); // within 2h window
     }

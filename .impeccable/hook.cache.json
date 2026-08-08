@@ -1,6 +1,27 @@
 {
   "version": 1,
   "sessions": {
+    "06090cd0-0ba8-4887-9f20-65c350a6277a": {
+      "updatedAt": 1786231960509,
+      "files": {
+        "/Users/mohakgupta/Projects/carpooling-system/apps/web/app/(app)/find/page.tsx": {
+          "editCount": 6,
+          "findings": []
+        },
+        "/Users/mohakgupta/Projects/carpooling-system/apps/api/src/modules/rides/rides.service.ts": {
+          "editCount": 3,
+          "findings": []
+        },
+        "/Users/mohakgupta/Projects/carpooling-system/apps/web/components/rides/ride-details-dialog.tsx": {
+          "editCount": 1,
+          "findings": []
+        },
+        "/Users/mohakgupta/Projects/carpooling-system/apps/web/components/maps/location-picker.tsx": {
+          "editCount": 6,
+          "findings": []
+        }
+      }
+    },
     "17a0026e-06d1-438d-b25f-55be57a4f9ba": {
       "updatedAt": 1786220909186,
       "files": {
@@ -123,31 +144,6 @@
       "updatedAt": 1786189324096,
       "files": {
         "/Users/mohakgupta/Projects/carpooling-system/apps/api/src/modules/auth/auth.route.ts": {
-          "editCount": 3,
-          "findings": []
-        }
-      }
-    },
-    "5e9f1f56-8dfa-4c02-be4a-d417fb7ffefc": {
-      "updatedAt": 1786185622888,
-      "files": {
-        "/Users/mohakgupta/Projects/carpooling-system/packages/ui/src/page-header.tsx": {
-          "editCount": 1,
-          "findings": []
-        },
-        "/Users/mohakgupta/Projects/carpooling-system/packages/ui/src/stat-card.tsx": {
-          "editCount": 1,
-          "findings": []
-        },
-        "/Users/mohakgupta/Projects/carpooling-system/apps/web/app/globals.css": {
-          "editCount": 2,
-          "findings": []
-        },
-        "/Users/mohakgupta/Projects/carpooling-system/packages/ui/src/badge.tsx": {
-          "editCount": 1,
-          "findings": []
-        },
-        "/Users/mohakgupta/Projects/carpooling-system/apps/web/app/(app)/dashboard/page.tsx": {
           "editCount": 3,
           "findings": []
         }

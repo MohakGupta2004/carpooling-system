@@ -1,4 +1,4 @@
-import { createPaymentSchema } from '@carpooling-system/types';
+import { createPaymentSchema } from '@carpool/types';
 import type { Prisma } from '@prisma/client';
 import { Router } from 'express';
 import type { Request } from 'express';

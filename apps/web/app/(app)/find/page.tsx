@@ -14,6 +14,7 @@ import { Badge } from "@repo/ui/badge"
 import { Avatar, AvatarFallback } from "@repo/ui/avatar"
 import { Skeleton } from "@repo/ui/skeleton"
 import { LocationPicker, type Place } from "@/components/maps/location-picker"
+import { RideDetailsDialog } from "@/components/rides/ride-details-dialog"
 import {
   SearchIcon,
   StarFilledIcon,
@@ -48,7 +49,9 @@ export default function FindPage() {
   const [pickup, setPickup] = useState<Place | null>(null)
   const [destination, setDestination] = useState<Place | null>(null)
   const [womenOnly, setWomenOnly] = useState(false)
-  const [date] = useState(new Date().toISOString().slice(0, 10))
+  // Local calendar date (en-CA gives YYYY-MM-DD). toISOString() would send the
+  // UTC date, which is the previous day for IST users before 05:30 local.
+  const [date] = useState(new Date().toLocaleDateString("en-CA"))
 
   // Prefill pickup = saved "Home", destination = saved "Office"
   const saved = useQuery({
@@ -96,10 +99,16 @@ export default function FindPage() {
       toast.error(e instanceof Error ? e.message : "Search failed"),
   })
 
+  // Ride opened in the details modal (card click).
+  const [selected, setSelected] = useState<Match | null>(null)
+
   const book = useMutation({
     mutationFn: (rideId: string) =>
       api.post("/bookings", { rideId, seats: 1, pickup, drop: destination }),
-    onSuccess: () => toast.success("Booked! Check My Trips."),
+    onSuccess: () => {
+      setSelected(null)
+      toast.success("Booked! Check My Trips.")
+    },
     onError: (e) =>
       toast.error(e instanceof Error ? e.message : "Booking failed"),
   })
@@ -176,7 +185,20 @@ export default function FindPage() {
             {search.data.length} matching ride(s)
           </p>
           {search.data.map((m) => (
-            <Card key={m.id}>
+            <Card
+              key={m.id}
+              role="button"
+              tabIndex={0}
+              aria-label={`Ride details: ${m.origin.label} to ${m.destination.label}`}
+              onClick={() => setSelected(m)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault()
+                  setSelected(m)
+                }
+              }}
+              className="cursor-pointer transition-colors outline-none hover:bg-accent/40 focus-visible:ring-2 focus-visible:ring-ring"
+            >
               <CardContent className="flex flex-wrap items-center justify-between gap-4 p-5">
                 <div className="flex items-center gap-4">
                   <Avatar className="size-11">
@@ -239,7 +261,10 @@ export default function FindPage() {
                   <Button
                     size="sm"
                     className="mt-1"
-                    onClick={() => book.mutate(m.id)}
+                    onClick={(e) => {
+                      e.stopPropagation() // don't also open the details modal
+                      book.mutate(m.id)
+                    }}
                     disabled={book.isPending || m.seatsAvailable <= 0}
                   >
                     {m.seatsAvailable <= 0 ? "Full" : "Book seat"}
@@ -258,6 +283,16 @@ export default function FindPage() {
           )}
         </div>
       )}
+
+      <RideDetailsDialog
+        rideId={selected?.id ?? null}
+        open={!!selected}
+        onOpenChange={(o) => !o && setSelected(null)}
+        matchReason={selected?.match.reason}
+        matchScore={selected?.match.score}
+        onBook={(id) => book.mutate(id)}
+        booking={book.isPending}
+      />
     </div>
   )
 }

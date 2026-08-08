@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 import { useQuery } from "@tanstack/react-query"
 import { api } from "@/lib/api"
 import { MAPS_KEY, useMaps } from "./use-maps"
@@ -59,6 +60,20 @@ export function LocationPicker({
   const [open, setOpen] = useState(false)
   const [locating, setLocating] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  // The suggestion panel renders in a portal on <body>: `Card` sets
+  // `overflow-hidden` (see packages/ui/src/card.tsx), which clips any absolutely
+  // positioned child, and every page puts this picker inside a Card. Portalling
+  // it out and pinning it to the input in viewport coords is the only way it
+  // escapes that clip.
+  const anchorRef = useRef<HTMLDivElement>(null)
+  const popRef = useRef<HTMLDivElement>(null)
+  const [pos, setPos] = useState<{
+    top: number
+    left: number
+    width: number
+    maxH: number
+    flip: boolean
+  } | null>(null)
 
   const saved = useQuery({
     queryKey: ["saved-places"],
@@ -114,9 +129,42 @@ export function LocationPicker({
     return () => clearTimeout(t)
   }, [q])
 
+  // Pin the portalled panel to the input, and keep it pinned while the page
+  // scrolls or resizes. Flips above the input when there isn't room below.
+  useLayoutEffect(() => {
+    if (!open) return
+    const measure = () => {
+      const el = anchorRef.current
+      if (!el) return
+      const r = el.getBoundingClientRect()
+      const below = window.innerHeight - r.bottom - 12
+      const above = r.top - 12
+      const flip = below < 220 && above > below
+      setPos({
+        top: flip ? r.top - 4 : r.bottom + 4,
+        left: r.left,
+        width: r.width,
+        maxH: Math.max(160, flip ? above : below),
+        flip,
+      })
+    }
+    measure()
+    window.addEventListener("resize", measure)
+    // capture phase: catches scrolls on any ancestor, not just the window
+    window.addEventListener("scroll", measure, true)
+    return () => {
+      window.removeEventListener("resize", measure)
+      window.removeEventListener("scroll", measure, true)
+    }
+  }, [open])
+
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+      const t = e.target as Node
+      // The panel lives outside `ref` now, so it needs its own hit test —
+      // otherwise mousedown closes it before a row's click ever lands.
+      if (ref.current?.contains(t) || popRef.current?.contains(t)) return
+      setOpen(false)
     }
     document.addEventListener("mousedown", onClick)
     return () => document.removeEventListener("mousedown", onClick)
@@ -174,7 +222,7 @@ export function LocationPicker({
 
   return (
     <div className="relative" ref={ref}>
-      <div className="relative">
+      <div className="relative" ref={anchorRef}>
         <span
           className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
           style={{ color: accent }}
@@ -196,92 +244,107 @@ export function LocationPicker({
         )}
       </div>
 
-      {open && (
-        <div className="absolute z-50 mt-1 w-full overflow-hidden rounded-xl border border-border bg-popover shadow-lg">
-          {/* Saved places */}
-          {(saved.data?.length ?? 0) > 0 && q.length < 3 && (
-            <div className="border-b border-border py-1">
-              <p className="px-3 pt-2 pb-1 text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
-                Saved places
-              </p>
-              {saved.data!.map((s) => {
-                const Icon = savedIcon(s.label)
-                return (
-                  <Row
-                    key={s.id}
-                    onClick={() => pick(s)}
-                    icon={<Icon className="size-4 text-primary" />}
-                    title={s.label}
-                    subtitle={s.address}
-                  />
-                )
-              })}
-            </div>
-          )}
+      {open &&
+        pos &&
+        createPortal(
+          <div
+            ref={popRef}
+            style={{
+              position: "fixed",
+              top: pos.top,
+              left: pos.left,
+              width: pos.width,
+              maxHeight: pos.maxH,
+              transform: pos.flip ? "translateY(-100%)" : undefined,
+            }}
+            className="z-50 overflow-y-auto rounded-xl border border-border bg-popover shadow-lg"
+          >
+            {/* Saved places */}
+            {(saved.data?.length ?? 0) > 0 && q.length < 3 && (
+              <div className="border-b border-border py-1">
+                <p className="px-3 pt-2 pb-1 text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
+                  Saved places
+                </p>
+                {saved.data!.map((s) => {
+                  const Icon = savedIcon(s.label)
+                  return (
+                    <Row
+                      key={s.id}
+                      onClick={() => pick(s)}
+                      icon={<Icon className="size-4 text-primary" />}
+                      title={s.label}
+                      subtitle={s.address}
+                    />
+                  )
+                })}
+              </div>
+            )}
 
-          {/* Current location */}
-          <Row
-            onClick={useCurrentLocation}
-            icon={
-              locating ? (
-                <SpinnerIcon className="size-4 animate-spin text-primary" />
-              ) : (
-                <IconCurrentLocation className="size-4 text-primary" />
-              )
-            }
-            title="Use current location"
-          />
-
-          {/* Search results — Google Places when available, else backend geocoder */}
-          {q.length >= 3 && (
-            <div className="max-h-64 scrollbar-thin overflow-y-auto border-t border-border">
-              {usingGoogle ? (
-                predictions.length === 0 ? (
-                  <p className="px-3 py-3 text-xs text-muted-foreground">
-                    Searching Google Maps…
-                  </p>
+            {/* Current location */}
+            <Row
+              onClick={useCurrentLocation}
+              icon={
+                locating ? (
+                  <SpinnerIcon className="size-4 animate-spin text-primary" />
                 ) : (
-                  predictions.map((p) => (
-                    <Row
-                      key={p.place_id}
-                      onClick={() => pickGoogle(p)}
-                      icon={
-                        <SearchIcon className="size-4 text-muted-foreground" />
-                      }
-                      title={p.structured_formatting.main_text}
-                      subtitle={p.structured_formatting.secondary_text}
-                    />
-                  ))
+                  <IconCurrentLocation className="size-4 text-primary" />
                 )
-              ) : (
-                <>
-                  {results.isFetching && (
+              }
+              title="Use current location"
+            />
+
+            {/* Search results — Google Places when available, else backend geocoder */}
+            {q.length >= 3 && (
+              <div className="max-h-64 scrollbar-thin overflow-y-auto border-t border-border">
+                {usingGoogle ? (
+                  predictions.length === 0 ? (
                     <p className="px-3 py-3 text-xs text-muted-foreground">
-                      Searching…
+                      Searching Google Maps…
                     </p>
-                  )}
-                  {!results.isFetching && (results.data?.length ?? 0) === 0 && (
-                    <p className="px-3 py-3 text-xs text-muted-foreground">
-                      No results for “{q}”.
-                    </p>
-                  )}
-                  {results.data?.map((r, i) => (
-                    <Row
-                      key={i}
-                      onClick={() => pick(r)}
-                      icon={
-                        <SearchIcon className="size-4 text-muted-foreground" />
-                      }
-                      title={r.label}
-                      subtitle={r.address}
-                    />
-                  ))}
-                </>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+                  ) : (
+                    predictions.map((p) => (
+                      <Row
+                        key={p.place_id}
+                        onClick={() => pickGoogle(p)}
+                        icon={
+                          <SearchIcon className="size-4 text-muted-foreground" />
+                        }
+                        title={p.structured_formatting.main_text}
+                        subtitle={p.structured_formatting.secondary_text}
+                      />
+                    ))
+                  )
+                ) : (
+                  <>
+                    {results.isFetching && (
+                      <p className="px-3 py-3 text-xs text-muted-foreground">
+                        Searching…
+                      </p>
+                    )}
+                    {!results.isFetching &&
+                      (results.data?.length ?? 0) === 0 && (
+                        <p className="px-3 py-3 text-xs text-muted-foreground">
+                          No results for “{q}”.
+                        </p>
+                      )}
+                    {results.data?.map((r, i) => (
+                      <Row
+                        key={i}
+                        onClick={() => pick(r)}
+                        icon={
+                          <SearchIcon className="size-4 text-muted-foreground" />
+                        }
+                        title={r.label}
+                        subtitle={r.address}
+                      />
+                    ))}
+                  </>
+                )}
+              </div>
+            )}
+          </div>,
+          document.body
+        )}
     </div>
   )
 }

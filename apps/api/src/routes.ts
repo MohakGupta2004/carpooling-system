@@ -12,10 +12,13 @@ import {
   sosRouter,
 } from './modules/misc/misc.route.ts';
 import organizationsRoutes from './modules/organizations/organizations.route.ts';
+import paymentsRoutes from './modules/payments/payments.routes.ts';
 import reportsRoutes from './modules/reports/reports.routes.js';
+import rideRoutes from './modules/rides/rides.route.ts';
 import { bookingsRouter, tripsRouter } from './modules/trips/trips.route.ts';
 import userRoutes from './modules/user/user.route.ts';
 import vehiclesRouter from './modules/vehicles/vehicles.route.ts';
+import walletRoutes from './modules/wallet/wallet.route.ts';
 
 export const api = Router();
 api.get('/health', (_req, res) => res.json({ data: { status: 'ok', flags } }));
@@ -34,3 +37,6 @@ api.use('/notifications', notificationsRouter);
 api.use('/reviews', reviewsRouter);
 api.use('/sos', sosRouter);
 api.use('/vehicles', vehiclesRouter);
+api.use('/rides', rideRoutes);
+api.use('/wallet', walletRoutes);
+api.use('/payments', paymentsRoutes);
