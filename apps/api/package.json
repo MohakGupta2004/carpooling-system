@@ -1,5 +1,5 @@
 {
-  "name": "api",
+  "name": "@carpool/api",
   "module": "index.ts",
   "type": "module",
   "private": true,
@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.1.0",
-    "@ridebuddy/types": "workspace:*",
+    "@carpool/types": "workspace:*",
     "@socket.io/redis-adapter": "^8.3.0",
     "argon2": "^0.41.1",
     "bullmq": "^5.34.5",
