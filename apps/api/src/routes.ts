@@ -3,6 +3,7 @@ import { Router } from 'express';
 import { flags } from './config/flags.js';
 import authRoutes from './modules/auth/auth.route.ts';
 import companiesRoutes from './modules/companies/companies.route.ts';
+import mapsRoutes from './modules/maps/map.route.ts';
 import organizationsRoutes from './modules/organizations/organizations.route.ts';
 import reportsRoutes from './modules/reports/reports.routes.js';
 import { bookingsRouter, tripsRouter } from './modules/trips/trips.route.ts';
@@ -20,3 +21,5 @@ api.use('/admin', (_req, res) => {
 api.use('/trips', tripsRouter);
 api.use('/bookings', bookingsRouter);
 api.use('/reports', reportsRoutes);
+
+api.use('/maps', mapsRoutes);
