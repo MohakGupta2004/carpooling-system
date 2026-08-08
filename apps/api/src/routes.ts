@@ -12,3 +12,6 @@ api.use('/auth', authRoutes);
 api.use('/users', userRoutes);
 api.use('/companies', companiesRoutes);
 api.use('/admin/organizations', organizationsRoutes);
+api.use('/admin', (_req, res) => {
+  res.json({ data: { status: 'ok' } });
+});
