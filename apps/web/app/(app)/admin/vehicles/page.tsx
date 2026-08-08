@@ -4,20 +4,21 @@ import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "react-hot-toast"
 import { api } from "@/lib/api"
-import { PageHeader } from "@/components/ui/page-header"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { PageHeader } from "@repo/ui/page-header"
+import { Card, CardContent } from "@repo/ui/card"
+import { CardGridSkeleton } from "@repo/ui/page-skeleton"
+import { Button } from "@repo/ui/button"
+import { Badge } from "@repo/ui/badge"
+import { Input } from "@repo/ui/input"
+import { Label } from "@repo/ui/label"
+import { Avatar, AvatarFallback } from "@repo/ui/avatar"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@repo/ui/select"
 import {
   CarIcon,
   ApproveIcon,
@@ -26,13 +27,15 @@ import {
   TrashIcon,
   PlusIcon,
   VerifiedIcon,
-} from "@/components/ui/icons"
+} from "@repo/ui/icons"
 
 interface Vehicle {
   id: string
   brand: string
   model: string
   registrationNo: string
+  licenseNo: string
+  driverName: string
   type: string
   fuelType: string
   seats: number
@@ -59,6 +62,8 @@ const EMPTY = {
   brand: "",
   model: "",
   registrationNo: "",
+  licenseNo: "",
+  driverName: "",
   color: "",
   fuelType: "PETROL",
   seats: 4,
@@ -71,6 +76,9 @@ const FIELD_LABELS: Record<string, string> = {
   brand: "Brand",
   model: "Model",
   registrationNo: "Registration",
+  licenseNo: "Licence",
+  driverName: "Driver",
+  isAc: "AC",
   color: "Colour",
   fuelType: "Fuel",
   seats: "Seats",
@@ -86,9 +94,13 @@ const initials = (n: string) =>
 const fmt = (v: unknown) =>
   v == null || v === ""
     ? "—"
-    : String(v).includes("T") && String(v).length > 10
-      ? String(v).slice(0, 10)
-      : String(v)
+    : typeof v === "boolean"
+      ? v
+        ? "Yes"
+        : "No"
+      : String(v).includes("T") && String(v).length > 10
+        ? String(v).slice(0, 10)
+        : String(v)
 
 export default function AdminVehiclesPage() {
   const qc = useQueryClient()
@@ -160,10 +172,12 @@ export default function AdminVehiclesPage() {
         brand: form.brand.trim(),
         model: form.model.trim(),
         registrationNo: form.registrationNo.trim(),
-        color: form.color || undefined,
+        licenseNo: form.licenseNo.trim(),
+        driverName: form.driverName.trim(),
+        color: form.color.trim(),
         fuelType: form.fuelType,
         seats: Number(form.seats),
-        insuranceNo: form.insuranceNo || undefined,
+        insuranceNo: form.insuranceNo.trim(),
         ...(form.pucValidTill
           ? { pucValidTill: new Date(form.pucValidTill).toISOString() }
           : {}),
@@ -189,6 +203,8 @@ export default function AdminVehiclesPage() {
       brand: v.brand,
       model: v.model,
       registrationNo: v.registrationNo,
+      licenseNo: v.licenseNo ?? "",
+      driverName: v.driverName ?? "",
       color: v.color ?? "",
       fuelType: v.fuelType,
       seats: v.seats,
@@ -198,10 +214,16 @@ export default function AdminVehiclesPage() {
     setShowForm(true)
   }
 
+  // Mirrors createVehicleSchema on the API — licenceNo/driverName are required
+  // there, so a form missing them would fail validation on submit.
   const valid =
     form.brand.trim() &&
     form.model.trim() &&
     form.registrationNo.trim().length >= 3 &&
+    form.licenseNo.trim().length >= 3 &&
+    form.driverName.trim() &&
+    form.seats >= 1 &&
+    form.seats <= 10 &&
     (editingId || form.ownerId)
   const list = vehicles.data ?? []
   const pendingReviews = list.filter((v) => v.pendingChanges).length
@@ -311,6 +333,24 @@ export default function AdminVehiclesPage() {
                   placeholder="GJ01AB1234"
                 />
               </Field>
+              <Field label="Licence no.">
+                <Input
+                  value={form.licenseNo}
+                  onChange={(e) =>
+                    setForm({ ...form, licenseNo: e.target.value })
+                  }
+                  placeholder="GJ0120110012345"
+                />
+              </Field>
+              <Field label="Driver name">
+                <Input
+                  value={form.driverName}
+                  onChange={(e) =>
+                    setForm({ ...form, driverName: e.target.value })
+                  }
+                  placeholder="Name on the licence"
+                />
+              </Field>
               <Field label="Fuel type">
                 <Dropdown
                   value={form.fuelType}
@@ -373,6 +413,23 @@ export default function AdminVehiclesPage() {
         </Card>
       )}
 
+      {vehicles.isLoading && <CardGridSkeleton count={4} />}
+
+      {vehicles.isError && (
+        <Card>
+          <CardContent className="p-10 text-center text-sm text-destructive">
+            Couldn’t load vehicles.{" "}
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => vehicles.refetch()}
+            >
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Vehicle cards */}
       <div className="grid gap-4 lg:grid-cols-2">
         {list.map((v) => (
@@ -397,7 +454,7 @@ export default function AdminVehiclesPage() {
                 </div>
                 <div className="flex flex-col items-end gap-1.5">
                   {v.verification === "VERIFIED" ? (
-                    <Badge variant="success">
+                    <Badge variant="eco">
                       <VerifiedIcon /> Verified
                     </Badge>
                   ) : v.verification === "REJECTED" ? (
@@ -537,7 +594,7 @@ export default function AdminVehiclesPage() {
         ))}
       </div>
 
-      {!vehicles.isLoading && list.length === 0 && (
+      {!vehicles.isLoading && !vehicles.isError && list.length === 0 && (
         <Card>
           <CardContent className="p-10 text-center text-sm text-muted-foreground">
             No vehicles registered yet. Use “Add vehicle” to register one.
@@ -602,8 +659,14 @@ function Dropdown({
   onChange: (v: string) => void
   options: [string, string][]
 }) {
+  // `items` lets Select.Value render the option's label — without it the
+  // trigger falls back to the raw value (e.g. an owner's id).
   return (
-    <Select value={value} onValueChange={onChange}>
+    <Select
+      value={value}
+      onValueChange={(v) => onChange(v ?? "")}
+      items={options.map(([value, label]) => ({ value, label }))}
+    >
       <SelectTrigger>
         <SelectValue />
       </SelectTrigger>

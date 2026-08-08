@@ -54,6 +54,15 @@
           "findings": []
         }
       }
+    },
+    "2b10c942-56c4-4de4-9595-0fe26a3bde83": {
+      "updatedAt": 1786219667881,
+      "files": {
+        "/Users/mohakgupta/Projects/carpooling-system/apps/web/app/(app)/admin/vehicles/page.tsx": {
+          "editCount": 1,
+          "findings": []
+        }
+      }
     }
   }
 }
