@@ -1,10 +1,20 @@
-import { Geist, Geist_Mono, Inter } from "next/font/google"
+import { Host_Grotesk, Space_Grotesk, Geist_Mono } from "next/font/google"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
+const hostGrotesk = Host_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-heading",
+  weight: ["300", "400", "500", "600", "700"],
+})
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  weight: ["300", "400", "500", "600", "700"],
+})
 
 const fontMono = Geist_Mono({
   subsets: ["latin"],
@@ -22,9 +32,10 @@ export default function RootLayout({
       suppressHydrationWarning
       className={cn(
         "antialiased",
+        hostGrotesk.variable,
+        spaceGrotesk.variable,
         fontMono.variable,
-        "font-sans",
-        inter.variable
+        "font-sans"
       )}
     >
       <body>
