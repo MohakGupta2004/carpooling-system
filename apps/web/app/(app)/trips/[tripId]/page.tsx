@@ -6,11 +6,10 @@ import { useQuery } from "@tanstack/react-query"
 import { api } from "@/lib/api"
 import { useAuth } from "@/stores/auth"
 import { inr } from "@/lib/utils"
-import { PageHeader } from "@/components/ui/page-header"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Card, CardContent } from "@repo/ui/card"
+import { Button } from "@repo/ui/button"
+import { Badge } from "@repo/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/avatar"
 
 interface Party {
   id: string
