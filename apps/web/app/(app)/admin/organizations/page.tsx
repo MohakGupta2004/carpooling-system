@@ -344,6 +344,7 @@ export default function OrganizationsPage() {
                     <Button
                       size="sm"
                       variant="outline"
+                      nativeButton={false}
                       render={<Link href={`/admin/organizations/${o.id}`} />}
                     >
                       View details

@@ -86,6 +86,7 @@ export default function OrgDetailPage() {
             <Button
               size="sm"
               variant="ghost"
+              nativeButton={false}
               render={<Link href="/admin/organizations" />}
             >
               Back to organizations
@@ -120,6 +121,7 @@ export default function OrgDetailPage() {
             <Button
               size="sm"
               variant="outline"
+              nativeButton={false}
               render={<Link href="/admin/organizations" />}
             >
               Back

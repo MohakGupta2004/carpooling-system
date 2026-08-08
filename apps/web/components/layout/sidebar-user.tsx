@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback } from "@repo/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -63,12 +64,14 @@ export function SidebarUser({ collapsed }: { collapsed: boolean }) {
         )}
       </DropdownMenuTrigger>
       <DropdownMenuContent side="right" align="end" className="w-56">
-        <DropdownMenuLabel className="flex flex-col">
-          <span className="truncate">{user?.fullName ?? "Account"}</span>
-          <span className="truncate text-xs font-normal text-muted-foreground">
-            {user?.email}
-          </span>
-        </DropdownMenuLabel>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="flex flex-col">
+            <span className="truncate">{user?.fullName ?? "Account"}</span>
+            <span className="truncate text-xs font-normal text-muted-foreground">
+              {user?.email}
+            </span>
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="flex items-center gap-2"

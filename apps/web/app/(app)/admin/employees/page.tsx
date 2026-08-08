@@ -357,6 +357,7 @@ export default function EmployeesPage() {
                     <Button
                       size="sm"
                       variant="outline"
+                      nativeButton={false}
                       render={<Link href={`/admin/employees/${e.id}`} />}
                     >
                       View details

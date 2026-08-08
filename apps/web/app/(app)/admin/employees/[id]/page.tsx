@@ -100,6 +100,7 @@ export default function EmployeeDetailPage() {
             <Button
               size="sm"
               variant="ghost"
+              nativeButton={false}
               render={<Link href="/admin/employees" />}
             >
               Back to employees
@@ -140,6 +141,7 @@ export default function EmployeeDetailPage() {
             <Button
               size="sm"
               variant="outline"
+              nativeButton={false}
               render={<Link href="/admin/employees" />}
             >
               Back
