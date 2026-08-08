@@ -6,21 +6,21 @@ import { toast } from "react-hot-toast"
 import { api } from "@/lib/api"
 import { useAuth } from "@/stores/auth"
 import { inr, km } from "@/lib/utils"
-import { PageHeader } from "@/components/ui/page-header"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Skeleton } from "@/components/ui/skeleton"
+import { PageHeader } from "@repo/ui/page-header"
+import { Card, CardContent } from "@repo/ui/card"
+import { Button } from "@repo/ui/button"
+import { Label } from "@repo/ui/label"
+import { Badge } from "@repo/ui/badge"
+import { Avatar, AvatarFallback } from "@repo/ui/avatar"
+import { Skeleton } from "@repo/ui/skeleton"
 import { LocationPicker, type Place } from "@/components/maps/location-picker"
 import {
   SearchIcon,
   StarFilledIcon,
   ClockIcon,
   SpinnerIcon,
-} from "@/components/ui/icons"
-import { SeatIndicator } from "@/components/ui/seats"
+} from "@repo/ui/icons"
+import { SeatIndicator } from "@repo/ui/seats"
 
 interface Match {
   id: string
