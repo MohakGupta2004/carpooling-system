@@ -19,9 +19,10 @@ import { inr } from "@/lib/utils"
 import { PageHeader } from "@repo/ui/page-header"
 import { StatCard } from "@repo/ui/stat-card"
 import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/card"
-import { Button } from "@repo/ui/button"
+import { buttonVariants } from "@repo/ui/button"
 import { Badge } from "@repo/ui/badge"
 import { Skeleton } from "@repo/ui/skeleton"
+import { Progress, ProgressLabel, ProgressValue } from "@repo/ui/progress"
 import {
   RouteIcon,
   EcoIcon,
@@ -36,22 +37,82 @@ import {
   CompanyIcon,
   KeyIcon,
   VerifiedIcon,
+  EditIcon,
+  SosIcon,
 } from "@repo/ui/icons"
 
 const axis = { fontSize: 11, fill: "var(--muted-foreground)" }
-const dayLabel = (d: string) =>
-  new Date(d).toLocaleDateString([], { day: "numeric", month: "short" })
-function ChartTip({ active, payload, label }: any) {
+
+const dayLabel = (d: string) => {
+  const date = new Date(d)
+  return Number.isNaN(date.getTime())
+    ? ""
+    : date.toLocaleDateString([], { day: "numeric", month: "short" })
+}
+
+const truncate = (s: string, max = 12) =>
+  s.length > max ? `${s.slice(0, max - 1)}…` : s
+
+interface TipEntry {
+  name?: string | number
+  value?: string | number
+  color?: string
+  fill?: string
+}
+function ChartTip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean
+  payload?: TipEntry[]
+  label?: string | number
+}) {
   if (!active || !payload?.length) return null
   return (
     <div className="rounded-lg border border-border bg-popover px-3 py-2 text-xs shadow-md">
       {label !== undefined && <p className="mb-1 font-medium">{label}</p>}
-      {payload.map((p: any, i: number) => (
+      {payload.map((p, i) => (
         <p key={i} style={{ color: p.color ?? p.fill }}>
           {p.name}: <span className="font-semibold">{p.value}</span>
         </p>
       ))}
     </div>
+  )
+}
+
+/** Centred message used for both "nothing to show" and "load failed" states. */
+function ChartPlaceholder({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex h-full items-center justify-center px-4 text-center text-sm text-muted-foreground">
+      {children}
+    </div>
+  )
+}
+
+function LoadError({ children }: { children?: React.ReactNode }) {
+  return (
+    <Card>
+      <CardContent className="flex items-center gap-2 py-2 text-sm">
+        <SosIcon className="size-4 shrink-0 text-destructive" />
+        <span className="text-muted-foreground">
+          {children ?? "Couldn't load this data. Refresh to try again."}
+        </span>
+      </CardContent>
+    </Card>
+  )
+}
+
+function StatSkeletons({ count }: { count: number }) {
+  return (
+    <>
+      {Array.from({ length: count }).map((_, i) => (
+        <Skeleton
+          key={i}
+          className="h-28 rounded-[min(var(--radius-4xl),24px)]"
+        />
+      ))}
+    </>
   )
 }
 
@@ -96,32 +157,35 @@ function SuperAdminDashboard({ name }: { name: string }) {
   })
   const t = q.data?.totals
   const orgs = q.data?.organizations ?? []
+
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`Platform overview`}
+        title="Platform overview"
         description={`Hi ${name} — every organization on RideBuddy at a glance.`}
         action={
           <div className="flex gap-2">
-            <Button size="sm" asChild>
-              <Link href="/admin/organizations">
-                <CompanyIcon /> Organizations
-              </Link>
-            </Button>
-            <Button size="sm" variant="outline" asChild>
-              <Link href="/admin/reports">
-                <ChartIcon /> Analytics
-              </Link>
-            </Button>
+            <Link
+              href="/admin/organizations"
+              className={buttonVariants({ size: "sm" })}
+            >
+              <CompanyIcon /> Organizations
+            </Link>
+            <Link
+              href="/admin/reports"
+              className={buttonVariants({ size: "sm", variant: "outline" })}
+            >
+              <ChartIcon /> Analytics
+            </Link>
           </div>
         }
       />
 
+      {q.isError && <LoadError>Platform totals are unavailable.</LoadError>}
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {q.isLoading ? (
-          Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-28" />
-          ))
+          <StatSkeletons count={6} />
         ) : (
           <>
             <StatCard
@@ -169,44 +233,53 @@ function SuperAdminDashboard({ name }: { name: string }) {
           </CardHeader>
           <CardContent className="p-0">
             <div className="divide-y divide-border">
-              {orgs.map((o) => (
-                <Link
-                  key={o.id}
-                  href="/admin/reports"
-                  className="flex items-center justify-between gap-3 px-5 py-3 transition-colors hover:bg-accent"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="flex size-9 items-center justify-center rounded-lg bg-secondary text-primary">
-                      <CompanyIcon className="size-5" />
-                    </span>
-                    <div>
-                      <p className="text-sm font-medium">
-                        {o.name}
-                        {o.status !== "ACTIVE" && (
-                          <span className="ml-1 text-xs text-muted-foreground">
-                            ({o.status})
-                          </span>
-                        )}
+              {q.isLoading &&
+                Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="px-5 py-3">
+                    <Skeleton className="h-9" />
+                  </div>
+                ))}
+              {!q.isLoading &&
+                orgs.map((o) => (
+                  <Link
+                    key={o.id}
+                    href={`/admin/reports?org=${o.id}`}
+                    className="flex items-center justify-between gap-3 px-5 py-3 transition-colors hover:bg-accent"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-secondary/10 text-secondary">
+                        <CompanyIcon className="size-5" />
+                      </span>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium">
+                          {o.name}
+                          {o.status !== "ACTIVE" && (
+                            <span className="ml-1 text-xs text-muted-foreground">
+                              ({o.status})
+                            </span>
+                          )}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {o.activeUsers} users · {o.vehicles} vehicles ·{" "}
+                          {o.completedTrips} trips
+                        </p>
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="text-sm font-semibold tabular-nums">
+                        {inr(o.revenue * 100)}
                       </p>
-                      <p className="text-xs text-muted-foreground">
-                        {o.activeUsers} users · {o.vehicles} vehicles ·{" "}
-                        {o.completedTrips} trips
+                      <p className="text-xs text-muted-foreground tabular-nums">
+                        {o.co2SavedKg}kg CO₂
                       </p>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="tabular text-sm font-semibold">
-                      {inr(o.revenue * 100)}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {o.co2SavedKg}kg CO₂
-                    </p>
-                  </div>
-                </Link>
-              ))}
-              {orgs.length === 0 && (
+                  </Link>
+                ))}
+              {!q.isLoading && orgs.length === 0 && (
                 <p className="px-5 py-8 text-center text-sm text-muted-foreground">
-                  No organizations yet.
+                  {q.isError
+                    ? "Couldn't load organizations."
+                    : "No organizations yet."}
                 </p>
               )}
             </div>
@@ -218,40 +291,50 @@ function SuperAdminDashboard({ name }: { name: string }) {
           </CardHeader>
           <CardContent>
             <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={orgs} margin={{ left: -20, right: 8, top: 8 }}>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="var(--border)"
-                    vertical={false}
-                  />
-                  <XAxis
-                    dataKey="name"
-                    tick={axis}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis
-                    allowDecimals={false}
-                    tick={axis}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <Tooltip content={<ChartTip />} />
-                  <Bar
-                    dataKey="completedTrips"
-                    name="Trips"
-                    radius={[4, 4, 0, 0]}
-                    fill="var(--chart-1)"
-                  />
-                  <Bar
-                    dataKey="co2SavedKg"
-                    name="CO₂ (kg)"
-                    radius={[4, 4, 0, 0]}
-                    fill="var(--chart-3)"
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+              {q.isLoading ? (
+                <Skeleton className="size-full" />
+              ) : orgs.length === 0 ? (
+                <ChartPlaceholder>No organization data yet.</ChartPlaceholder>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={orgs}
+                    margin={{ left: -20, right: 8, top: 8 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="var(--border)"
+                      vertical={false}
+                    />
+                    <XAxis
+                      dataKey="name"
+                      tickFormatter={(v: string) => truncate(v)}
+                      tick={axis}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <YAxis
+                      allowDecimals={false}
+                      tick={axis}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <Tooltip content={<ChartTip />} />
+                    <Bar
+                      dataKey="completedTrips"
+                      name="Trips"
+                      radius={[4, 4, 0, 0]}
+                      fill="var(--chart-1)"
+                    />
+                    <Bar
+                      dataKey="co2SavedKg"
+                      name="CO₂ (kg)"
+                      radius={[4, 4, 0, 0]}
+                      fill="var(--chart-3)"
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -298,9 +381,12 @@ function AdminDashboard({ name, orgName }: { name: string; orgName?: string }) {
     queryFn: () => api.get<AdminVehicle[]>("/admin/vehicles"),
   })
   const k = a.data?.kpis
-  const pendingApprovals =
-    veh.data?.filter((v) => v.verification === "PENDING").length ?? 0
-  const pendingEdits = veh.data?.filter((v) => v.pendingChanges).length ?? 0
+  const vehicles = veh.data ?? []
+  const pendingApprovals = vehicles.filter(
+    (v) => v.verification === "PENDING"
+  ).length
+  const pendingEdits = vehicles.filter((v) => v.pendingChanges).length
+  const tripsPerDay = a.data?.tripsPerDay ?? []
 
   return (
     <div className="space-y-6">
@@ -308,24 +394,27 @@ function AdminDashboard({ name, orgName }: { name: string; orgName?: string }) {
         title={`${orgName ?? "Organization"} dashboard`}
         description={`Hi ${name} — your organization's operations, adoption and sustainability.`}
         action={
-          <div className="flex gap-2">
-            <Button size="sm" asChild>
-              <Link href="/admin/reports">
-                <ChartIcon /> Full analytics
-              </Link>
-            </Button>
-          </div>
+          <Link
+            href="/admin/reports"
+            className={buttonVariants({ size: "sm" })}
+          >
+            <ChartIcon /> Full analytics
+          </Link>
         }
       />
+
+      {a.isError && (
+        <LoadError>Organization analytics are unavailable.</LoadError>
+      )}
 
       {(pendingApprovals > 0 || pendingEdits > 0) && (
         <div className="grid gap-4 sm:grid-cols-2">
           {pendingApprovals > 0 && (
             <Link href="/admin/vehicles">
-              <Card className="border-[var(--warning)]/40 transition-colors hover:bg-accent">
-                <CardContent className="flex items-center justify-between p-4">
+              <Card className="ring-warning/40 transition-colors hover:bg-accent">
+                <CardContent className="flex items-center justify-between gap-3">
                   <span className="flex items-center gap-2 text-sm font-medium">
-                    <CarIcon className="size-5 text-primary" /> Vehicles
+                    <CarIcon className="size-5 text-warning" /> Vehicles
                     awaiting verification
                   </span>
                   <Badge variant="warning">{pendingApprovals}</Badge>
@@ -335,10 +424,11 @@ function AdminDashboard({ name, orgName }: { name: string; orgName?: string }) {
           )}
           {pendingEdits > 0 && (
             <Link href="/admin/vehicles">
-              <Card className="border-[var(--info)]/40 transition-colors hover:bg-accent">
-                <CardContent className="flex items-center justify-between p-4">
+              <Card className="ring-info/40 transition-colors hover:bg-accent">
+                <CardContent className="flex items-center justify-between gap-3">
                   <span className="flex items-center gap-2 text-sm font-medium">
-                    <EditPending /> Owner edits to review
+                    <EditIcon className="size-5 text-info" /> Owner edits to
+                    review
                   </span>
                   <Badge variant="info">{pendingEdits}</Badge>
                 </CardContent>
@@ -350,9 +440,7 @@ function AdminDashboard({ name, orgName }: { name: string; orgName?: string }) {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {a.isLoading ? (
-          Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-28" />
-          ))
+          <StatSkeletons count={6} />
         ) : (
           <>
             <StatCard
@@ -408,55 +496,66 @@ function AdminDashboard({ name, orgName }: { name: string; orgName?: string }) {
           </CardHeader>
           <CardContent>
             <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={a.data?.tripsPerDay ?? []}
-                  margin={{ left: -20, right: 8, top: 8 }}
-                >
-                  <defs>
-                    <linearGradient id="gT" x1="0" y1="0" x2="0" y2="1">
-                      <stop
-                        offset="0%"
-                        stopColor="var(--chart-1)"
-                        stopOpacity={0.35}
-                      />
-                      <stop
-                        offset="100%"
-                        stopColor="var(--chart-1)"
-                        stopOpacity={0}
-                      />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="var(--border)"
-                    vertical={false}
-                  />
-                  <XAxis
-                    dataKey="date"
-                    tickFormatter={dayLabel}
-                    tick={axis}
-                    interval={4}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis
-                    allowDecimals={false}
-                    tick={axis}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <Tooltip content={<ChartTip />} />
-                  <Area
-                    type="monotone"
-                    dataKey="trips"
-                    name="Trips"
-                    stroke="var(--chart-1)"
-                    fill="url(#gT)"
-                    strokeWidth={2}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+              {a.isLoading ? (
+                <Skeleton className="size-full" />
+              ) : tripsPerDay.length === 0 ? (
+                <ChartPlaceholder>
+                  No completed trips in the last 30 days.
+                </ChartPlaceholder>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart
+                    data={tripsPerDay}
+                    margin={{ left: -20, right: 8, top: 8 }}
+                  >
+                    <defs>
+                      <linearGradient id="gT" x1="0" y1="0" x2="0" y2="1">
+                        <stop
+                          offset="0%"
+                          stopColor="var(--chart-1)"
+                          stopOpacity={0.35}
+                        />
+                        <stop
+                          offset="100%"
+                          stopColor="var(--chart-1)"
+                          stopOpacity={0}
+                        />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="var(--border)"
+                      vertical={false}
+                    />
+                    <XAxis
+                      dataKey="date"
+                      tickFormatter={dayLabel}
+                      tick={axis}
+                      interval={4}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <YAxis
+                      allowDecimals={false}
+                      tick={axis}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <Tooltip
+                      content={<ChartTip />}
+                      labelFormatter={(v) => dayLabel(String(v))}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="trips"
+                      name="Trips"
+                      stroke="var(--chart-1)"
+                      fill="url(#gT)"
+                      strokeWidth={2}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -491,7 +590,7 @@ function AdminDashboard({ name, orgName }: { name: string; orgName?: string }) {
               label="Company"
             />
             <QuickLink
-              href="/admin/reports"
+              href="/admin/reports?tab=sustainability"
               icon={<VerifiedIcon className="size-5" />}
               label="Sustainability"
             />
@@ -501,9 +600,7 @@ function AdminDashboard({ name, orgName }: { name: string; orgName?: string }) {
     </div>
   )
 }
-function EditPending() {
-  return <VerifiedIcon className="size-5 text-primary" />
-}
+
 function QuickLink({
   href,
   icon,
@@ -518,7 +615,7 @@ function QuickLink({
       href={href}
       className="flex flex-col items-center gap-2 rounded-lg border border-border p-4 text-center transition-colors hover:bg-accent"
     >
-      <span className="flex size-9 items-center justify-center rounded-lg bg-secondary text-primary">
+      <span className="flex size-9 items-center justify-center rounded-lg bg-secondary/10 text-secondary">
         {icon}
       </span>
       <span className="text-xs font-medium">{label}</span>
@@ -548,19 +645,22 @@ function EmployeeDashboard({ name }: { name: string }) {
     queryKey: ["sustainability"],
     queryFn: () => api.get<Sustain>("/reports/sustainability"),
   })
+  const greenScore = Math.max(0, Math.min(100, sustain.data?.greenScore ?? 0))
 
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader
         title={`Hi, ${name} 👋`}
         description="Your commuting impact at a glance."
       />
 
+      {report.isError && (
+        <LoadError>Your trip stats are unavailable.</LoadError>
+      )}
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {report.isLoading ? (
-          Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-28" />
-          ))
+          <StatSkeletons count={4} />
         ) : (
           <>
             <StatCard
@@ -590,46 +690,50 @@ function EmployeeDashboard({ name }: { name: string }) {
         )}
       </div>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>Quick actions</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-3">
-            <Button asChild>
-              <Link href="/find">
-                <SearchIcon /> Find a ride
-              </Link>
-            </Button>
-            <Button variant="secondary" asChild>
-              <Link href="/offer">
-                <DriveIcon /> Offer a ride
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/trips">
-                <RouteIcon /> My trips
-              </Link>
-            </Button>
+            <Link href="/find" className={buttonVariants()}>
+              <SearchIcon /> Find a ride
+            </Link>
+            <Link
+              href="/offer"
+              className={buttonVariants({ variant: "secondary" })}
+            >
+              <DriveIcon /> Offer a ride
+            </Link>
+            <Link
+              href="/trips"
+              className={buttonVariants({ variant: "outline" })}
+            >
+              <RouteIcon /> My trips
+            </Link>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <EcoIcon className="size-4 text-primary" /> Sustainability
+              <EcoIcon className="size-4 text-eco" /> Sustainability
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {sustain.isLoading ? (
               <Skeleton className="h-24" />
+            ) : sustain.isError ? (
+              <p className="py-4 text-center text-sm text-muted-foreground">
+                Couldn&apos;t load your sustainability stats.
+              </p>
             ) : (
               <>
                 <div className="flex items-center justify-between text-sm">
                   <span className="flex items-center gap-2 text-muted-foreground">
                     <TreesIcon className="size-4" /> Trees equivalent
                   </span>
-                  <span className="tabular font-semibold">
+                  <span className="font-semibold tabular-nums">
                     {sustain.data?.treesEquivalent ?? 0}
                   </span>
                 </div>
@@ -637,22 +741,18 @@ function EmployeeDashboard({ name }: { name: string }) {
                   <span className="flex items-center gap-2 text-muted-foreground">
                     <FuelIcon className="size-4" /> Fuel saved
                   </span>
-                  <span className="tabular font-semibold">
+                  <span className="font-semibold tabular-nums">
                     {sustain.data?.fuelSavedL ?? 0} L
                   </span>
                 </div>
-                <div className="pt-2">
-                  <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
-                    <span>Green score</span>
-                    <span>{sustain.data?.greenScore ?? 0}/100</span>
-                  </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-muted">
-                    <div
-                      className="h-full rounded-full bg-primary"
-                      style={{ width: `${sustain.data?.greenScore ?? 0}%` }}
-                    />
-                  </div>
-                </div>
+                <Progress value={greenScore} className="pt-2">
+                  <ProgressLabel className="text-xs text-muted-foreground">
+                    Green score
+                  </ProgressLabel>
+                  <ProgressValue className="text-xs">
+                    {(_, value) => `${value ?? 0}/100`}
+                  </ProgressValue>
+                </Progress>
               </>
             )}
           </CardContent>

@@ -2,7 +2,13 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* Workspace UI package lives outside this app's auto-detected source root. */
+@source "../../../packages/ui/src";
+
 @theme inline {
+  --color-info: var(--info);
+  --color-warning: var(--warning);
+  --color-eco: var(--eco);
   --font-heading: var(--font-heading);
   --font-sans: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -72,6 +78,11 @@
   --accent-foreground: oklch(0.25 0.02 185);
 
   --destructive: oklch(0.577 0.245 27.325);
+
+  /* Status accents — used by StatCard/Badge accents across the app */
+  --info: oklch(0.55 0.13 240);
+  --warning: oklch(0.62 0.14 75);
+  --eco: oklch(0.55 0.13 155);
 
   --border: oklch(0.92 0.005 280);
   --input: oklch(0.92 0.005 280);
