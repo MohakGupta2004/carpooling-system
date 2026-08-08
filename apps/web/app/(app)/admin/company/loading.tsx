@@ -1,4 +1,4 @@
-import { PageHeaderSkeleton, FormSkeleton } from "@/components/ui/page-skeleton"
+import { PageHeaderSkeleton, FormSkeleton } from "@repo/ui/page-skeleton"
 
 export default function Loading() {
   return (
