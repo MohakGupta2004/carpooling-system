@@ -17,12 +17,12 @@ import {
 } from "recharts"
 import { api } from "@/lib/api"
 import { inr } from "@/lib/utils"
-import { PageHeader } from "@/components/ui/page-header"
-import { StatCard } from "@/components/ui/stat-card"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
+import { PageHeader } from "@repo/ui/page-header"
+import { StatCard } from "@repo/ui/stat-card"
+import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/card"
+import { Button } from "@repo/ui/button"
+import { Badge } from "@repo/ui/badge"
+import { Skeleton } from "@repo/ui/skeleton"
 import {
   RouteIcon,
   DriveIcon,
@@ -32,7 +32,7 @@ import {
   StarFilledIcon,
   CarIcon,
   DownloadIcon,
-} from "@/components/ui/icons"
+} from "@repo/ui/icons"
 
 interface MyReport {
   kpis: {
