@@ -1,9 +1,12 @@
+import { registerSchema } from '@carpool/types';
 import { Router } from 'express';
 
-import { asyncHandler } from '../../lib/http';
+import { asyncHandler, created } from '../../lib/http';
 import { authLimiter } from '../../middleware/rateLimit';
+import { validate, vbody } from '../../middleware/validate.js';
+import * as auth from './auth.service.js';
 
-const authRoute = Router();
+const authRouter = Router();
 
 const REFRESH_COOKIE = 'rideloop_rt';
 const cookieOpts = {
@@ -13,4 +16,9 @@ const cookieOpts = {
   path: '/api/v1/auth',
   maxAge: 30 * 24 * 60 * 60_000,
 };
-authRoute.post('/register', authLimiter, asyncHandler(authController.register));
+authRouter.post(
+  '/register',
+  authLimiter,
+  validate({ body: registerSchema }),
+  asyncHandler(async (req, res) => created(res, await auth.register(vbody(req))))
+);
