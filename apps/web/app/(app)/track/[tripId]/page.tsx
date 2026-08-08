@@ -10,12 +10,12 @@ import { openCheckout, type RazorpayOrderInfo } from "@/lib/razorpay"
 import { getSocket } from "@/lib/socket"
 import { useAuth } from "@/stores/auth"
 import { inr } from "@/lib/utils"
-import { PageHeader } from "@/components/ui/page-header"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { PageHeader } from "@repo/ui/page-header"
+import { Card, CardContent } from "@repo/ui/card"
+import { Button } from "@repo/ui/button"
+import { Input } from "@repo/ui/input"
+import { Badge } from "@repo/ui/badge"
+import { Avatar, AvatarFallback } from "@repo/ui/avatar"
 import {
   ClockIcon,
   PinIcon,
@@ -29,7 +29,7 @@ import {
   LockIcon as IconLock,
   CircleCheckIcon as IconCircleCheck,
   CashIcon as IconCash,
-} from "@/components/ui/icons"
+} from "@repo/ui/icons"
 import type { MapMarker, VehicleInfo } from "@/components/maps/MapPanel"
 
 const MapPanel = dynamic(() => import("@/components/maps/MapPanel"), {

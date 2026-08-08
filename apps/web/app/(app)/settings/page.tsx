@@ -5,11 +5,11 @@ import { useState } from "react"
 import { useQuery, useMutation } from "@tanstack/react-query"
 import { toast } from "react-hot-toast"
 import { api } from "@/lib/api"
-import { PageHeader } from "@/components/ui/page-header"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
+import { PageHeader } from "@repo/ui/page-header"
+import { Card, CardContent } from "@repo/ui/card"
+import { Button } from "@repo/ui/button"
+import { Input } from "@repo/ui/input"
+import { Badge } from "@repo/ui/badge"
 import { LocationPicker, type Place } from "@/components/maps/LocationPicker"
 import {
   RouteIcon,
@@ -22,7 +22,7 @@ import {
   HomeIcon,
   PinIcon,
   PlusIcon,
-} from "@/components/ui/icons"
+} from "@repo/ui/icons"
 
 interface SavedPlace {
   id: string
