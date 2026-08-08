@@ -9,6 +9,7 @@
   --color-info: var(--info);
   --color-warning: var(--warning);
   --color-eco: var(--eco);
+  --color-eco-foreground: var(--eco-foreground);
   --font-heading: var(--font-heading);
   --font-sans: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -83,6 +84,8 @@
   --info: oklch(0.55 0.13 240);
   --warning: oklch(0.62 0.14 75);
   --eco: oklch(0.55 0.13 155);
+  /* Text/icon colour that sits on a solid --eco surface. */
+  --eco-foreground: oklch(0.98 0 0);
 
   --border: oklch(0.92 0.005 280);
   --input: oklch(0.92 0.005 280);

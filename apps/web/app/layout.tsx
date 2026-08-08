@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { Host_Grotesk, Space_Grotesk, Geist_Mono } from "next/font/google"
 
 import "./globals.css"
@@ -21,6 +22,14 @@ const fontMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
 })
+
+export const metadata: Metadata = {
+  title: {
+    default: "Workway",
+    template: "%s · Workway",
+  },
+  description: "Share the commute with your colleagues.",
+}
 
 export default function RootLayout({
   children,

@@ -195,7 +195,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   <LeafBrand className="size-5" />
                 </span>
                 <span className="flex-1 truncate text-lg font-semibold tracking-tight">
-                  RideBuddy
+                  Workway
                 </span>
               </>
             )}
@@ -277,7 +277,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <header className="flex h-16 items-center justify-between border-b border-border bg-card/50 px-6 backdrop-blur">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <CompanyIcon className="size-4" />
-              {user?.organization?.name ?? "RideBuddy"}
+              {user?.organization?.name ?? "Workway"}
             </div>
             <div className="flex items-center gap-3">
               {/* Subtle on-brand chip — neutral pill + teal leaf, matches the toolbar */}

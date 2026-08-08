@@ -1,1 +1,50 @@
-{"version":1,"sessions":{}}
+{
+  "version": 1,
+  "sessions": {
+    "fe26f508-f5d6-4cd7-b64c-e45ec78bf26b": {
+      "updatedAt": 1786192104881,
+      "files": {
+        "/Users/mohakgupta/Projects/carpooling-system/apps/web/components/dashboard/types.ts": {
+          "editCount": 1,
+          "findings": []
+        },
+        "/Users/mohakgupta/Projects/carpooling-system/apps/web/components/dashboard/queries.ts": {
+          "editCount": 1,
+          "findings": []
+        },
+        "/Users/mohakgupta/Projects/carpooling-system/apps/web/components/dashboard/ui.tsx": {
+          "editCount": 1,
+          "findings": []
+        },
+        "/Users/mohakgupta/Projects/carpooling-system/apps/web/components/dashboard/charts.tsx": {
+          "editCount": 1,
+          "findings": []
+        },
+        "/Users/mohakgupta/Projects/carpooling-system/apps/web/components/dashboard/super-admin-dashboard.tsx": {
+          "editCount": 4,
+          "findings": []
+        },
+        "/Users/mohakgupta/Projects/carpooling-system/apps/web/components/dashboard/admin-dashboard.tsx": {
+          "editCount": 1,
+          "findings": []
+        },
+        "/Users/mohakgupta/Projects/carpooling-system/apps/web/components/dashboard/employee-dashboard.tsx": {
+          "editCount": 1,
+          "findings": []
+        },
+        "/Users/mohakgupta/Projects/carpooling-system/apps/web/app/(app)/dashboard/page.tsx": {
+          "editCount": 1,
+          "findings": []
+        },
+        "/Users/mohakgupta/Projects/carpooling-system/apps/web/app/(auth)/login/page.tsx": {
+          "editCount": 1,
+          "findings": []
+        },
+        "/Users/mohakgupta/Projects/carpooling-system/apps/web/app/layout.tsx": {
+          "editCount": 2,
+          "findings": []
+        }
+      }
+    }
+  }
+}

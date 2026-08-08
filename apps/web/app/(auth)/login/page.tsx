@@ -42,7 +42,7 @@ const item: Variants = {
 const features = [
   { icon: CarIcon, text: "Share rides with colleagues" },
   { icon: RouteIcon, text: "Optimized daily routes" },
-  { icon: UsersIcon, text: "Company-wide carpool network" },
+  { icon: UsersIcon, text: "Company-wide ride network" },
   { icon: EcoIcon, text: "Reduce your carbon footprint" },
 ]
 
@@ -96,7 +96,7 @@ export default function LoginPage() {
               className="text-xl font-semibold text-white"
               style={{ fontFamily: "var(--font-heading)" }}
             >
-              Carpool
+              Workway
             </span>
           </Link>
         </motion.div>
@@ -118,7 +118,7 @@ export default function LoginPage() {
             together.
           </motion.h2>
           <motion.p variants={item} className="mt-4 text-base text-white/70">
-            Join your company&apos;s carpool network and make every commute
+            Join your company&apos;s Workway network and make every commute
             count.
           </motion.p>
 
@@ -146,7 +146,7 @@ export default function LoginPage() {
           transition={{ delay: 0.8 }}
           className="relative z-10 text-xs text-white/50"
         >
-          &ldquo;The best carpool is the one you don&apos;t have to drive
+          &ldquo;The best commute is the one you don&apos;t have to drive
           alone.&rdquo;
         </motion.p>
       </div>
@@ -169,7 +169,7 @@ export default function LoginPage() {
                 className="text-xl font-semibold text-foreground"
                 style={{ fontFamily: "var(--font-heading)" }}
               >
-                Carpool
+                Workway
               </span>
             </Link>
           </motion.div>
@@ -182,7 +182,7 @@ export default function LoginPage() {
               Welcome back
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Sign in to your carpool account
+              Sign in to your Workway account
             </p>
           </motion.div>
 
