@@ -59,6 +59,15 @@
           "findings": []
         }
       }
+    },
+    "1447a9c5-ac84-4d4b-8eac-bc8fe97828f9": {
+      "updatedAt": 1786189324096,
+      "files": {
+        "/Users/mohakgupta/Projects/carpooling-system/apps/api/src/modules/auth/auth.route.ts": {
+          "editCount": 3,
+          "findings": []
+        }
+      }
     }
   }
 }

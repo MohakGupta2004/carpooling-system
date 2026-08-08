@@ -7,7 +7,6 @@ import { verifyRefreshToken } from '../../lib/jwt.js';
 import { authenticate } from '../../middleware/authenticate.js';
 import { authLimiter } from '../../middleware/rateLimit';
 import { validate, vbody } from '../../middleware/validate.js';
-import router from '../rbac/rbac.route.js';
 import { getEffectivePermissions } from '../rbac/rbac.service.js';
 import * as auth from './auth.service.js';
 
@@ -73,13 +72,13 @@ authRouter.post(
   })
 );
 
-router.get(
+authRouter.get(
   '/me',
   authenticate,
   asyncHandler(async (req, res) => ok(res, await auth.getMe(req.user!.id)))
 );
 
-router.get(
+authRouter.get(
   '/me/permissions',
   authenticate,
   asyncHandler(async (req, res) => {
@@ -98,4 +97,4 @@ authRouter.post(
   })
 );
 
-export default router;
+export default authRouter;

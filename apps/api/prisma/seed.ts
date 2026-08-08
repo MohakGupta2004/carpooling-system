@@ -78,6 +78,20 @@ async function main() {
     withDemoRides: false,
   });
 
+  // The *Geo columns are plain (not GENERATED) in the database, and nothing in the
+  // app writes them, so derive them here from the lat/lng we just inserted.
+  // Order matters: the points must exist before routeGeo can be built from them.
+  await prisma.$executeRawUnsafe(
+    `UPDATE "Ride" SET
+       "originGeo" = ST_SetSRID(ST_MakePoint("originLng"::double precision, "originLat"::double precision), 4326)::geography,
+       "destGeo"   = ST_SetSRID(ST_MakePoint("destLng"::double precision,   "destLat"::double precision),   4326)::geography;`
+  );
+  await prisma.$executeRawUnsafe(
+    `UPDATE "Booking" SET
+       "pickupGeo" = ST_SetSRID(ST_MakePoint("pickupLng"::double precision, "pickupLat"::double precision), 4326)::geography,
+       "dropGeo"   = ST_SetSRID(ST_MakePoint("dropLng"::double precision,   "dropLat"::double precision),   4326)::geography;`
+  );
+
   // Backfill routeGeo for seeded rides (created without a road polyline) with a
   // straight origin→destination line, so corridor matching works out of the box.
   await prisma.$executeRawUnsafe(
@@ -129,7 +143,7 @@ async function seedOrg(opts: {
   await prisma.officeLocation.create({
     data: {
       organizationId: org.id,
-      name: 'Odoo Kolkata (Sector V)',
+      name: `${opts.name} Kolkata (Sector V)`,
       address: 'Godrej Waterside, Sector V, Salt Lake, Kolkata, West Bengal 700091',
       lat: 22.5726,
       lng: 88.4332,
