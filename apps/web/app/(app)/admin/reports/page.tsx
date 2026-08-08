@@ -24,18 +24,18 @@ import {
 import { api } from "@/lib/api"
 import { useAuth } from "@/stores/auth"
 import { inr } from "@/lib/utils"
-import { PageHeader } from "@/components/ui/page-header"
-import { DateRangePicker, type Range } from "@/components/ui/date-range-picker"
-import { StatCard } from "@/components/ui/stat-card"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { PageHeader } from "@repo/ui/page-header"
+import { DateRangePicker, type Range } from "@repo/ui/date-range-picker"
+import { StatCard } from "@repo/ui/stat-card"
+import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/card"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Skeleton } from "@/components/ui/skeleton"
+} from "@repo/ui/select"
+import { Skeleton } from "@repo/ui/skeleton"
 import {
   UsersIcon,
   CarIcon,
@@ -45,7 +45,7 @@ import {
   FuelIcon,
   TreesIcon,
   DownloadIcon,
-} from "@/components/ui/icons"
+} from "@repo/ui/icons"
 
 interface Analytics {
   kpis: {
