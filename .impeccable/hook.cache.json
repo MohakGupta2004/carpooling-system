@@ -1,1 +1,39 @@
-{"version":1,"sessions":{"6468ca9e-8100-46e2-8da5-703712697ea1":{"updatedAt":1785838195011,"files":{"/Users/mohakgupta/Projects/boilerplate/packages/ui/src/lib/utils.ts":{"editCount":1,"findings":[]},"/Users/mohakgupta/Projects/boilerplate/packages/ui/src/button.tsx":{"editCount":1,"findings":[]},"/Users/mohakgupta/Projects/boilerplate/apps/web/next.config.ts":{"editCount":1,"findings":[]},"/Users/mohakgupta/Projects/boilerplate/apps/web/app/page.tsx":{"editCount":1,"findings":[]}}}}}
+{
+  "version": 1,
+  "sessions": {
+    "6468ca9e-8100-46e2-8da5-703712697ea1": {
+      "updatedAt": 1785838195011,
+      "files": {
+        "/Users/mohakgupta/Projects/boilerplate/packages/ui/src/lib/utils.ts": {
+          "editCount": 1,
+          "findings": []
+        },
+        "/Users/mohakgupta/Projects/boilerplate/packages/ui/src/button.tsx": {
+          "editCount": 1,
+          "findings": []
+        },
+        "/Users/mohakgupta/Projects/boilerplate/apps/web/next.config.ts": {
+          "editCount": 1,
+          "findings": []
+        },
+        "/Users/mohakgupta/Projects/boilerplate/apps/web/app/page.tsx": {
+          "editCount": 1,
+          "findings": []
+        }
+      }
+    },
+    "b942d8f2-2e90-4e67-956b-f2fec0b6d738": {
+      "updatedAt": 1786184897858,
+      "files": {
+        "/Users/mohakgupta/Projects/carpooling-system/apps/web/components/layout/shell.tsx": {
+          "editCount": 5,
+          "findings": []
+        },
+        "/Users/mohakgupta/Projects/carpooling-system/apps/web/components/layout/sidebar-user.tsx": {
+          "editCount": 1,
+          "findings": []
+        }
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useSyncExternalStore } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import type { IconType } from "@repo/ui/hugeicon"
@@ -158,9 +158,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const toggle = useSidebar((s) => s.toggle)
 
   // Render expanded on first paint, then apply persisted preference (no hydration mismatch).
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
-  const isCollapsed = mounted && collapsed
+  const hydrated = useSyncExternalStore(
+    useSidebar.persist.onFinishHydration,
+    useSidebar.persist.hasHydrated,
+    () => false
+  )
+  const isCollapsed = hydrated && collapsed
 
   const groups = NAV.map((g) => ({
     ...g,
@@ -170,7 +173,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   })).filter((g) => g.items.length > 0)
 
   return (
-    <TooltipProvider delayDuration={0}>
+    <TooltipProvider delay={0}>
       <div className="flex min-h-screen bg-background">
         {/* Sidebar — pinned to the viewport (100vh) while the page scrolls */}
         <aside
@@ -197,16 +200,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </>
             )}
             <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={toggle}
-                  aria-label={
-                    isCollapsed ? "Expand sidebar" : "Collapse sidebar"
-                  }
-                  className="shrink-0 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
-                >
-                  <SidebarToggleIcon className="size-5" />
-                </button>
+              <TooltipTrigger
+                onClick={toggle}
+                aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                className="shrink-0 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
+              >
+                <SidebarToggleIcon className="size-5" />
               </TooltipTrigger>
               <TooltipContent side="right">
                 {isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -253,7 +252,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     )
                     return isCollapsed ? (
                       <Tooltip key={item.href}>
-                        <TooltipTrigger asChild>{link}</TooltipTrigger>
+                        <TooltipTrigger render={link} />
                         <TooltipContent side="right">
                           {item.label}
                         </TooltipContent>

@@ -70,15 +70,17 @@ export function SidebarUser({ collapsed }: { collapsed: boolean }) {
           </span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="flex items-center gap-2" asChild>
-          <Link href="/settings">
-            <ProfileIcon /> Profile
-          </Link>
+        <DropdownMenuItem
+          className="flex items-center gap-2"
+          render={<Link href="/settings" />}
+        >
+          <ProfileIcon /> Profile
         </DropdownMenuItem>
-        <DropdownMenuItem className="flex items-center gap-2" asChild>
-          <Link href="/settings">
-            <SettingsIcon /> Settings
-          </Link>
+        <DropdownMenuItem
+          className="flex items-center gap-2"
+          render={<Link href="/settings" />}
+        >
+          <SettingsIcon /> Settings
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
