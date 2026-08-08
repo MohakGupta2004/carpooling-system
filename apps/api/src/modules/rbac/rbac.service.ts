@@ -71,7 +71,9 @@ export async function getEffectivePermissions(userId: string, orgId: string): Pr
     }),
   ]);
 
-  const set = new Set<string>(roleGrants.map((g) => g.permission.key));
+  const set = new Set<string>(
+    roleGrants.map((g: { permission: { key: string } }) => g.permission.key)
+  );
   for (const o of overrides) {
     if (o.effect === 'ALLOW') set.add(o.permission.key);
     else set.delete(o.permission.key); // DENY wins
@@ -95,7 +97,9 @@ export async function listPermissions(isSuper = true) {
   const perms = await prisma.permission.findMany({
     orderBy: [{ resource: 'asc' }, { action: 'asc' }],
   });
-  return isSuper ? perms : perms.filter((p) => !SUPER_ADMIN_ONLY_PERMISSIONS.has(p.key));
+  return isSuper
+    ? perms
+    : perms.filter((p: { key: string }) => !SUPER_ADMIN_ONLY_PERMISSIONS.has(p.key));
 }
 
 export async function listRoles(orgId: string, isSuper = true) {
@@ -107,7 +111,7 @@ export async function listRoles(orgId: string, isSuper = true) {
     },
     orderBy: [{ isSystem: 'desc' }, { name: 'asc' }],
   });
-  return isSuper ? roles : roles.filter((r) => r.key !== 'SUPER_ADMIN');
+  return isSuper ? roles : roles.filter((r: { key: string }) => r.key !== 'SUPER_ADMIN');
 }
 
 export async function createRole(
@@ -173,14 +177,14 @@ export async function setRolePermissions(
   await prisma.$transaction([
     prisma.rolePermission.deleteMany({ where: { roleId } }),
     prisma.rolePermission.createMany({
-      data: perms.map((p) => ({ roleId, permissionId: p.id })),
+      data: perms.map((p: { id: string }) => ({ roleId, permissionId: p.id })),
       skipDuplicates: true,
     }),
   ]);
   await bumpPermVersion(orgId);
   await writeAudit(orgId, actorId, 'role.permissions.set', roleId, { permissionKeys });
   logger.info({ orgId, roleId, count: perms.length }, 'role permissions updated');
-  return perms.map((p) => p.key);
+  return perms.map((p: { key: string }) => p.key);
 }
 
 export async function assignRole(orgId: string, actorId: string, userId: string, roleId: string) {
@@ -210,7 +214,7 @@ export async function setUserOverrides(
     where: { key: { in: overrides.map((o) => o.permissionKey) } },
     select: { id: true, key: true },
   });
-  const byKey = new Map(perms.map((p) => [p.key, p.id]));
+  const byKey = new Map(perms.map((p: { key: string; id: string }) => [p.key, p.id]));
 
   await prisma.$transaction([
     prisma.userPermission.deleteMany({ where: { userId } }),

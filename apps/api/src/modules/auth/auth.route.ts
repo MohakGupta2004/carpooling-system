@@ -1,9 +1,17 @@
+import { loginSchema, registerSchema, verifyEmailSchema } from '@carpool/types';
 import { Router } from 'express';
 
-import { asyncHandler } from '../../lib/http';
+import { Unauthorized } from '../../lib/errors.js';
+import { asyncHandler, created, ok } from '../../lib/http';
+import { verifyRefreshToken } from '../../lib/jwt.js';
+import { authenticate } from '../../middleware/authenticate.js';
 import { authLimiter } from '../../middleware/rateLimit';
+import { validate, vbody } from '../../middleware/validate.js';
+import router from '../rbac/rbac.route.js';
+import { getEffectivePermissions } from '../rbac/rbac.service.js';
+import * as auth from './auth.service.js';
 
-const authRoute = Router();
+const authRouter = Router();
 
 const REFRESH_COOKIE = 'rideloop_rt';
 const cookieOpts = {
@@ -13,4 +21,81 @@ const cookieOpts = {
   path: '/api/v1/auth',
   maxAge: 30 * 24 * 60 * 60_000,
 };
-authRoute.post('/register', authLimiter, asyncHandler(authController.register));
+authRouter.post(
+  '/register',
+  authLimiter,
+  validate({ body: registerSchema }),
+  asyncHandler(async (req, res) => created(res, await auth.register(vbody(req))))
+);
+authRouter.post(
+  '/verify-email',
+  authLimiter,
+  validate({ body: verifyEmailSchema }),
+  asyncHandler(async (req, res) => {
+    const { email, otp } = vbody<{ email: string; otp: string }>(req);
+    ok(res, await auth.verifyEmail(email, otp));
+  })
+);
+
+authRouter.post(
+  '/login',
+  authLimiter,
+  validate({ body: loginSchema }),
+  asyncHandler(async (req, res) => {
+    const { email, password } = vbody<{ email: string; password: string }>(req);
+    const result = await auth.login(email, password, {
+      ua: req.headers['user-agent'],
+      ip: req.ip,
+    });
+    res.cookie(REFRESH_COOKIE, result.refreshToken, cookieOpts);
+    ok(res, {
+      accessToken: result.accessToken,
+      expiresIn: result.expiresIn,
+      user: result.user,
+    });
+  })
+);
+
+authRouter.post(
+  '/refresh',
+  asyncHandler(async (req, res) => {
+    const rt = req.cookies?.[REFRESH_COOKIE];
+    if (!rt) throw Unauthorized('Missing refresh token');
+    let userId: string;
+    try {
+      userId = verifyRefreshToken(rt).sub;
+    } catch {
+      throw Unauthorized('Invalid refresh token');
+    }
+    const result = await auth.refresh(rt, userId);
+    res.cookie(REFRESH_COOKIE, result.refreshToken, cookieOpts);
+    ok(res, { accessToken: result.accessToken, expiresIn: result.expiresIn });
+  })
+);
+
+router.get(
+  '/me',
+  authenticate,
+  asyncHandler(async (req, res) => ok(res, await auth.getMe(req.user!.id)))
+);
+
+router.get(
+  '/me/permissions',
+  authenticate,
+  asyncHandler(async (req, res) => {
+    const perms = await getEffectivePermissions(req.user!.id, req.user!.organizationId);
+    ok(res, { permissions: [...perms] });
+  })
+);
+authRouter.post(
+  '/logout',
+  authenticate,
+  asyncHandler(async (req, res) => {
+    const rt = req.cookies?.[REFRESH_COOKIE];
+    if (rt) await auth.logout(rt, req.user!.id);
+    res.clearCookie(REFRESH_COOKIE, { path: '/api/v1/auth' });
+    ok(res, { loggedOut: true });
+  })
+);
+
+export default router;
