@@ -16,7 +16,7 @@ import {
   SpinnerIcon,
   EyeIcon,
   EyeOffIcon,
-} from "@/components/ui/icons"
+} from "@repo/ui/icons"
 
 // Staggered entrance — adapted from watermelon auth-12.
 const container: Variants = {
