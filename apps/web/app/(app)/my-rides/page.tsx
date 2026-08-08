@@ -1,5 +1,6 @@
 "use client"
 
+import type { ComponentProps } from "react"
 import Link from "next/link"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "react-hot-toast"
@@ -12,12 +13,7 @@ import { Badge } from "@repo/ui/badge"
 import { Avatar, AvatarFallback } from "@repo/ui/avatar"
 import { Skeleton } from "@repo/ui/skeleton"
 import { SeatIndicator } from "@repo/ui/seats"
-import {
-  DriveIcon,
-  PlusIcon,
-  ClockIcon,
-  RouteIcon,
-} from "@repo/ui/icons"
+import { DriveIcon, PlusIcon, ClockIcon, RouteIcon } from "@repo/ui/icons"
 
 interface Passenger {
   fullName: string
@@ -43,14 +39,11 @@ interface MyRide {
   bookings: Booking[]
 }
 
-const RIDE_VARIANT: Record<
-  string,
-  "secondary" | "info" | "success" | "warning" | "destructive"
-> = {
+const RIDE_VARIANT: Record<string, ComponentProps<typeof Badge>["variant"]> = {
   PUBLISHED: "info",
   FULL: "warning",
   STARTED: "info",
-  COMPLETED: "success",
+  COMPLETED: "eco",
   CANCELLED: "destructive",
   DRAFT: "secondary",
 }
@@ -85,10 +78,8 @@ export default function MyRidesPage() {
         title="My Rides"
         description="Rides you've published as a driver."
         action={
-          <Button asChild>
-            <Link href="/offer">
-              <PlusIcon /> Offer a ride
-            </Link>
+          <Button render={<Link href="/offer" />}>
+            <PlusIcon /> Offer a ride
           </Button>
         }
       />
@@ -108,10 +99,8 @@ export default function MyRidesPage() {
             <p className="text-sm text-muted-foreground">
               You haven&apos;t published any rides yet.
             </p>
-            <Button asChild>
-              <Link href="/offer">
-                <PlusIcon /> Offer your first ride
-              </Link>
+            <Button render={<Link href="/offer" />}>
+              <PlusIcon /> Offer your first ride
             </Button>
           </CardContent>
         </Card>
@@ -148,7 +137,7 @@ export default function MyRidesPage() {
                     </div>
                     {/* fare + seats + status */}
                     <div className="flex flex-col items-end gap-1.5">
-                      <p className="tabular text-lg font-semibold">
+                      <p className="text-lg font-semibold tabular-nums">
                         {inr(r.farePerSeat)}
                         <span className="text-xs font-normal text-muted-foreground">
                           /seat
@@ -205,10 +194,12 @@ export default function MyRidesPage() {
                       !["PAYMENT_COMPLETED", "CANCELLED"].includes(
                         r.trip.status
                       ) && (
-                        <Button size="sm" variant="outline" asChild>
-                          <Link href={`/track/${r.trip.id}`}>
-                            Track / manage
-                          </Link>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          render={<Link href={`/track/${r.trip.id}`} />}
+                        >
+                          Track / manage
                         </Button>
                       )}
                     {canCancel && (

@@ -14,10 +14,10 @@ import { Button } from "@repo/ui/button"
 import { Input } from "@repo/ui/input"
 import { Label } from "@repo/ui/label"
 import { Badge } from "@repo/ui/badge"
-import { LocationPicker, type Place } from "@/components/maps/LocationPicker"
+import { LocationPicker, type Place } from "@/components/maps/location-picker"
 import { VerifiedIcon, RouteIcon, SpinnerIcon } from "@repo/ui/icons"
 
-const MapPanel = dynamic(() => import("@/components/maps/MapPanel"), {
+const MapPanel = dynamic(() => import("@/components/maps/map-panel"), {
   ssr: false,
   loading: () => (
     <div className="h-[280px] w-full animate-pulse rounded-xl bg-muted" />
@@ -160,8 +160,8 @@ export default function OfferPage() {
               You need a <strong>verified vehicle</strong> before offering a
               ride.
             </p>
-            <Button asChild className="mt-4">
-              <Link href="/vehicles">Add a vehicle</Link>
+            <Button className="mt-4" render={<Link href="/vehicles" />}>
+              Add a vehicle
             </Button>
           </CardContent>
         </Card>
@@ -267,7 +267,7 @@ export default function OfferPage() {
                       />
                       {v.brand} {v.model}
                     </span>
-                    <Badge variant="success" className="gap-1">
+                    <Badge variant="eco" className="gap-1">
                       <VerifiedIcon className="size-3" /> {v.seats} seats
                     </Badge>
                   </label>
@@ -371,15 +371,17 @@ export default function OfferPage() {
             <div className="rounded-lg bg-muted/50 p-4 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Seats</span>
-                <span className="tabular font-medium">{seats}</span>
+                <span className="font-medium tabular-nums">{seats}</span>
               </div>
               <div className="mt-1 flex justify-between">
                 <span className="text-muted-foreground">Fare / seat</span>
-                <span className="tabular font-medium">₹{fare}</span>
+                <span className="font-medium tabular-nums">₹{fare}</span>
               </div>
               <div className="mt-1 flex justify-between">
                 <span className="text-muted-foreground">Max earnings</span>
-                <span className="tabular font-medium">₹{fare * seats}</span>
+                <span className="font-medium tabular-nums">
+                  ₹{fare * seats}
+                </span>
               </div>
             </div>
           </CardContent>

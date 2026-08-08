@@ -30,9 +30,9 @@ import {
   CircleCheckIcon as IconCircleCheck,
   CashIcon as IconCash,
 } from "@repo/ui/icons"
-import type { MapMarker, VehicleInfo } from "@/components/maps/MapPanel"
+import type { MapMarker, VehicleInfo } from "@/components/maps/map-panel"
 
-const MapPanel = dynamic(() => import("@/components/maps/MapPanel"), {
+const MapPanel = dynamic(() => import("@/components/maps/map-panel"), {
   ssr: false,
   loading: () => (
     <div className="h-[440px] w-full animate-pulse rounded-xl bg-muted" />
@@ -548,7 +548,7 @@ export default function TrackPage() {
               active
                 ? "info"
                 : status === "PAYMENT_COMPLETED"
-                  ? "success"
+                  ? "eco"
                   : "secondary"
             }
           >
@@ -574,7 +574,7 @@ export default function TrackPage() {
               <div className="flex items-center gap-5 text-sm">
                 <span className="flex items-center gap-1.5 text-muted-foreground">
                   <ClockIcon className="size-4" /> ETA{" "}
-                  <span className="tabular font-semibold text-foreground">
+                  <span className="font-semibold text-foreground tabular-nums">
                     {eta != null
                       ? `${Math.max(0, Math.round(eta / 60))} min`
                       : "—"}
@@ -669,7 +669,7 @@ export default function TrackPage() {
                 <p className="text-sm text-muted-foreground">
                   Share this pickup code with your driver
                 </p>
-                <p className="tabular mt-2 text-4xl font-semibold tracking-[0.4em] text-primary">
+                <p className="mt-2 text-4xl font-semibold tracking-[0.4em] text-primary tabular-nums">
                   {myBooking?.pickupOtp ?? "----"}
                 </p>
                 <p className="mt-2 flex items-center justify-center gap-1 text-xs text-muted-foreground">
@@ -776,7 +776,7 @@ export default function TrackPage() {
                           </p>
                         </div>
                         {paid ? (
-                          <Badge variant="success" className="gap-1">
+                          <Badge variant="eco" className="gap-1">
                             <IconCircleCheck className="size-3" /> Paid
                           </Badge>
                         ) : cashPending ? (
@@ -844,11 +844,9 @@ export default function TrackPage() {
                 size="icon"
                 variant="outline"
                 title={`Call ${callList[0].fullName}`}
-                asChild
+                render={<a href={`tel:${callList[0].phone}`} />}
               >
-                <a href={`tel:${callList[0].phone}`}>
-                  <IconPhone className="size-4" />
-                </a>
+                <IconPhone className="size-4" />
               </Button>
             ) : callList.length > 1 ? (
               <div className="relative">

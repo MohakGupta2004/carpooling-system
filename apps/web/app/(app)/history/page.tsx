@@ -8,7 +8,7 @@ import { PageHeader } from "@repo/ui/page-header"
 import { Card, CardContent } from "@repo/ui/card"
 import { Badge } from "@repo/ui/badge"
 import { Button } from "@repo/ui/button"
-import { Skeleton } from "@repo/ui/skeleton"
+import { TableSkeleton } from "@repo/ui/page-skeleton"
 
 interface HistoryItem {
   id: string
@@ -31,13 +31,30 @@ export default function HistoryPage() {
   })
 
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader
         title="Ride History"
         description="All your completed and cancelled trips."
       />
       {history.isLoading ? (
-        <Skeleton className="h-40" />
+        <TableSkeleton rows={8} cols={5} />
+      ) : history.isError ? (
+        <Card>
+          <CardContent className="space-y-3 p-10 text-center">
+            <p className="text-sm text-muted-foreground">
+              {history.error instanceof Error
+                ? history.error.message
+                : "Could not load ride history."}
+            </p>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => history.refetch()}
+            >
+              Retry
+            </Button>
+          </CardContent>
+        </Card>
       ) : (
         <Card>
           <CardContent className="divide-y divide-border p-0">
@@ -62,20 +79,20 @@ export default function HistoryPage() {
                     <Badge variant="outline">{h.payment.method}</Badge>
                   )}
                   <Badge
-                    variant={
-                      h.status === "COMPLETED" ? "success" : "destructive"
-                    }
+                    variant={h.status === "COMPLETED" ? "eco" : "destructive"}
                   >
                     {h.status}
                   </Badge>
-                  <span className="tabular text-sm font-semibold">
+                  <span className="text-sm font-semibold tabular-nums">
                     {inr(h.fareAmount)}
                   </span>
                   {h.ride.trip && (
-                    <Button size="sm" variant="ghost" asChild>
-                      <Link href={`/trips/${h.ride.trip.id}`}>
-                        View details
-                      </Link>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      render={<Link href={`/trips/${h.ride.trip.id}`} />}
+                    >
+                      View details
                     </Button>
                   )}
                 </div>

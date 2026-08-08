@@ -244,7 +244,10 @@ export default function ReportsPage() {
                     tickLine={false}
                     axisLine={false}
                   />
-                  <Tooltip content={<ChartTip />} labelFormatter={monthLabel} />
+                  <Tooltip
+                    content={<ChartTip />}
+                    labelFormatter={(label) => monthLabel(String(label))}
+                  />
                   <Area
                     type="monotone"
                     dataKey="trips"
@@ -298,7 +301,7 @@ export default function ReportsPage() {
                       />
                       <span className="text-muted-foreground">{x.role}</span>
                     </span>
-                    <span className="tabular font-medium">{x.value}</span>
+                    <span className="font-medium tabular-nums">{x.value}</span>
                   </li>
                 ))}
               </ul>
@@ -334,7 +337,7 @@ export default function ReportsPage() {
                     <Badge variant={t.role === "Driver" ? "info" : "secondary"}>
                       {t.role}
                     </Badge>
-                    <span className="tabular w-16 text-right text-muted-foreground">
+                    <span className="w-16 text-right text-muted-foreground tabular-nums">
                       {t.role === "Passenger" ? inr(t.amount * 100) : "—"}
                     </span>
                   </div>
@@ -360,7 +363,7 @@ export default function ReportsPage() {
                   className="flex items-center justify-between py-2 text-sm"
                 >
                   <span>{v.name}</span>
-                  <span className="tabular text-muted-foreground">
+                  <span className="text-muted-foreground tabular-nums">
                     {v.trips} trips · {v.distanceKm} km
                   </span>
                 </div>

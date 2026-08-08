@@ -10,7 +10,7 @@ import { Card, CardContent } from "@repo/ui/card"
 import { Button } from "@repo/ui/button"
 import { Input } from "@repo/ui/input"
 import { Badge } from "@repo/ui/badge"
-import { LocationPicker, type Place } from "@/components/maps/LocationPicker"
+import { LocationPicker, type Place } from "@/components/maps/location-picker"
 import {
   RouteIcon,
   CarIcon,
@@ -278,8 +278,8 @@ export default function SettingsPage() {
               contact.
             </p>
           </div>
-          <Button variant="outline" asChild>
-            <Link href="/profile">Edit in profile</Link>
+          <Button variant="outline" render={<Link href="/profile" />}>
+            Edit in profile
           </Button>
         </CardContent>
       </Card>

@@ -200,7 +200,9 @@ export default function VehiclesPage() {
               <Field label="Type">
                 <Select
                   value={form.type}
-                  onValueChange={(v) => setForm({ ...form, type: v })}
+                  onValueChange={(v) =>
+                    setForm({ ...form, type: v ?? form.type })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -235,7 +237,9 @@ export default function VehiclesPage() {
               <Field label="Fuel">
                 <Select
                   value={form.fuelType}
-                  onValueChange={(v) => setForm({ ...form, fuelType: v })}
+                  onValueChange={(v) =>
+                    setForm({ ...form, fuelType: v ?? form.fuelType })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -291,7 +295,7 @@ export default function VehiclesPage() {
                   <CarIcon className="size-5" />
                 </span>
                 {v.verification === "VERIFIED" ? (
-                  <Badge variant="success" className="gap-1">
+                  <Badge variant="eco" className="gap-1">
                     <VerifiedIcon className="size-3" /> Verified
                   </Badge>
                 ) : v.verification === "REJECTED" ? (

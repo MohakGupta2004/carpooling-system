@@ -1,5 +1,6 @@
 "use client"
 
+import type { ComponentProps } from "react"
 import Link from "next/link"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "react-hot-toast"
@@ -39,18 +40,16 @@ interface PassengerBooking {
   }
 }
 
-const STATUS_VARIANT: Record<
-  string,
-  "secondary" | "info" | "success" | "warning"
-> = {
-  PUBLISHED: "info",
-  BOOKED: "secondary",
-  DRIVER_STARTED: "info",
-  IN_PROGRESS: "info",
-  COMPLETED: "success",
-  PAYMENT_PENDING: "warning",
-  PAYMENT_COMPLETED: "success",
-}
+const STATUS_VARIANT: Record<string, ComponentProps<typeof Badge>["variant"]> =
+  {
+    PUBLISHED: "info",
+    BOOKED: "secondary",
+    DRIVER_STARTED: "info",
+    IN_PROGRESS: "info",
+    COMPLETED: "eco",
+    PAYMENT_PENDING: "warning",
+    PAYMENT_COMPLETED: "eco",
+  }
 
 export default function TripsPage() {
   const qc = useQueryClient()
@@ -145,21 +144,29 @@ export default function TripsPage() {
                     </Badge>
                   </div>
                   <div className="text-right">
-                    <p className="tabular font-semibold">{inr(b.fareAmount)}</p>
+                    <p className="font-semibold tabular-nums">
+                      {inr(b.fareAmount)}
+                    </p>
                     <div className="mt-2 flex justify-end gap-2">
                       {b.ride.trip && (
-                        <Button size="sm" variant="ghost" asChild>
-                          <Link href={`/trips/${b.ride.trip.id}`}>
-                            View details
-                          </Link>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          render={<Link href={`/trips/${b.ride.trip.id}`} />}
+                        >
+                          View details
                         </Button>
                       )}
                       {b.ride.trip &&
                         !["PAYMENT_COMPLETED", "CANCELLED"].includes(
                           b.ride.trip.status
                         ) && (
-                          <Button size="sm" variant="outline" asChild>
-                            <Link href={`/track/${b.ride.trip.id}`}>Track</Link>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            render={<Link href={`/track/${b.ride.trip.id}`} />}
+                          >
+                            Track
                           </Button>
                         )}
                     </div>
@@ -221,16 +228,24 @@ export default function TripsPage() {
                     </div>
                     <div className="flex gap-2">
                       {r.trip && (
-                        <Button size="sm" variant="ghost" asChild>
-                          <Link href={`/trips/${r.trip.id}`}>View details</Link>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          render={<Link href={`/trips/${r.trip.id}`} />}
+                        >
+                          View details
                         </Button>
                       )}
                       {r.trip &&
                         !["PAYMENT_COMPLETED", "CANCELLED"].includes(
                           r.trip.status
                         ) && (
-                          <Button size="sm" variant="outline" asChild>
-                            <Link href={`/track/${r.trip.id}`}>Track</Link>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            render={<Link href={`/track/${r.trip.id}`} />}
+                          >
+                            Track
                           </Button>
                         )}
                       {r.trip?.status === "BOOKED" && !noPax && (

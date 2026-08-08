@@ -17,13 +17,8 @@ import { SeatIndicator } from "@repo/ui/seats"
 import {
   LocationPicker,
   type Place as PickerPlace,
-} from "@/components/maps/LocationPicker"
-import {
-  SearchIcon,
-  StarFilledIcon,
-  ClockIcon,
-  RoadIcon,
-} from "@repo/ui/icons"
+} from "@/components/maps/location-picker"
+import { SearchIcon, StarFilledIcon, ClockIcon, RoadIcon } from "@repo/ui/icons"
 
 interface Place {
   label: string
@@ -118,10 +113,8 @@ export default function AvailableRidesPage() {
         title="Available Rides"
         description="Rides that pass near your pickup — a driver only detours a little to collect you."
         action={
-          <Button variant="outline" asChild>
-            <Link href="/find">
-              <SearchIcon /> Search by route
-            </Link>
+          <Button variant="outline" render={<Link href="/find" />}>
+            <SearchIcon /> Search by route
           </Button>
         }
       />
@@ -212,7 +205,7 @@ export default function AvailableRidesPage() {
                         })}
                       </Badge>
                       <Badge
-                        variant={r.detourM < 1000 ? "success" : "info"}
+                        variant={r.detourM < 1000 ? "eco" : "info"}
                         className="gap-1"
                       >
                         <RoadIcon className="size-3" />{" "}
@@ -240,7 +233,7 @@ export default function AvailableRidesPage() {
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-1.5">
-                  <p className="tabular text-lg font-semibold">
+                  <p className="text-lg font-semibold tabular-nums">
                     {inr(r.farePerSeat)}
                     <span className="text-xs font-normal text-muted-foreground">
                       /seat

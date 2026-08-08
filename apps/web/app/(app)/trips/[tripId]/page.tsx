@@ -1,11 +1,13 @@
 "use client"
 
+import type { ComponentProps } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { useQuery } from "@tanstack/react-query"
 import { api } from "@/lib/api"
 import { useAuth } from "@/stores/auth"
 import { inr } from "@/lib/utils"
+import { PageHeader } from "@repo/ui/page-header"
 import { Card, CardContent } from "@repo/ui/card"
 import { Button } from "@repo/ui/button"
 import { Badge } from "@repo/ui/badge"
@@ -85,18 +87,16 @@ const initials = (n?: string) =>
         .toUpperCase()
     : "?"
 const dt = (s?: string | null) => (s ? new Date(s).toLocaleString() : "—")
-const STATUS_VARIANT: Record<
-  string,
-  "secondary" | "info" | "success" | "warning" | "destructive"
-> = {
-  BOOKED: "secondary",
-  DRIVER_STARTED: "info",
-  IN_PROGRESS: "info",
-  COMPLETED: "success",
-  PAYMENT_PENDING: "warning",
-  PAYMENT_COMPLETED: "success",
-  CANCELLED: "destructive",
-}
+const STATUS_VARIANT: Record<string, ComponentProps<typeof Badge>["variant"]> =
+  {
+    BOOKED: "secondary",
+    DRIVER_STARTED: "info",
+    IN_PROGRESS: "info",
+    COMPLETED: "eco",
+    PAYMENT_PENDING: "warning",
+    PAYMENT_COMPLETED: "eco",
+    CANCELLED: "destructive",
+  }
 
 export default function TripDetailsPage() {
   const { tripId } = useParams<{ tripId: string }>()
@@ -155,8 +155,8 @@ export default function TripDetailsPage() {
             <Badge variant={STATUS_VARIANT[t.status] ?? "secondary"}>
               {t.status.replaceAll("_", " ")}
             </Badge>
-            <Button size="sm" variant="outline" asChild>
-              <Link href="/trips">Back</Link>
+            <Button size="sm" variant="outline" render={<Link href="/trips" />}>
+              Back
             </Button>
           </div>
         }
@@ -212,7 +212,7 @@ export default function TripDetailsPage() {
                 </div>
                 <div className="mt-4 grid grid-cols-3 gap-4 text-center">
                   <div>
-                    <p className="tabular text-2xl font-semibold text-primary">
+                    <p className="text-2xl font-semibold text-primary tabular-nums">
                       {co2Kg}
                     </p>
                     <p className="text-xs text-muted-foreground">
@@ -220,7 +220,7 @@ export default function TripDetailsPage() {
                     </p>
                   </div>
                   <div>
-                    <p className="tabular text-2xl font-semibold text-primary">
+                    <p className="text-2xl font-semibold text-primary tabular-nums">
                       {fuelL}
                     </p>
                     <p className="text-xs text-muted-foreground">
@@ -228,7 +228,7 @@ export default function TripDetailsPage() {
                     </p>
                   </div>
                   <div>
-                    <p className="tabular text-2xl font-semibold text-primary">
+                    <p className="text-2xl font-semibold text-primary tabular-nums">
                       {treesYr}
                     </p>
                     <p className="text-xs text-muted-foreground">
@@ -341,12 +341,12 @@ export default function TripDetailsPage() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="tabular text-sm font-semibold">
+                      <p className="text-sm font-semibold tabular-nums">
                         {inr(b.fareAmount)}
                       </p>
                       <Badge
                         variant={
-                          b.payment?.status === "PAID" ? "success" : "secondary"
+                          b.payment?.status === "PAID" ? "eco" : "secondary"
                         }
                         className="mt-0.5 text-[10px]"
                       >
@@ -416,9 +416,7 @@ export default function TripDetailsPage() {
                   <span className="text-sm text-muted-foreground">Status</span>
                   <Badge
                     variant={
-                      myBooking.payment?.status === "PAID"
-                        ? "success"
-                        : "warning"
+                      myBooking.payment?.status === "PAID" ? "eco" : "warning"
                     }
                   >
                     {myBooking.payment?.status ?? "UNPAID"}
@@ -445,7 +443,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="tabular font-semibold">{value}</p>
+      <p className="font-semibold tabular-nums">{value}</p>
     </div>
   )
 }

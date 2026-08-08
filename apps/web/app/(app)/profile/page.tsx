@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/ui/select"
-import { LocationPicker, type Place } from "@/components/maps/LocationPicker"
+import { LocationPicker, type Place } from "@/components/maps/location-picker"
 
 interface Me {
   id: string
@@ -204,9 +204,7 @@ export default function ProfilePage() {
                       {r.role.name}
                     </Badge>
                   ))}
-                  <Badge
-                    variant={d.status === "ACTIVE" ? "success" : "warning"}
-                  >
+                  <Badge variant={d.status === "ACTIVE" ? "eco" : "warning"}>
                     {d.status}
                   </Badge>
                 </div>
@@ -393,7 +391,7 @@ function Select({
   return (
     <UISelect
       value={value === "" ? EMPTY : value}
-      onValueChange={(v) => onChange(v === EMPTY ? "" : v)}
+      onValueChange={(v) => onChange(!v || v === EMPTY ? "" : v)}
     >
       <SelectTrigger>
         <SelectValue />
