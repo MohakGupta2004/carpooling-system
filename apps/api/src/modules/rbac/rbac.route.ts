@@ -3,15 +3,15 @@ import {
   createRoleSchema,
   setOverridesSchema,
   setRolePermissionsSchema,
-} from '@ridebuddy/types';
+} from '@carpool/types';
 import { Router } from 'express';
 import { z } from 'zod';
 
 import { asyncHandler, created, ok } from '../../lib/http.js';
-import { authenticate } from '../../middleware/authenticate.js';
+import { authenticate } from '../../middleware/authenticate.ts';
 import { requirePermission } from '../../middleware/requirePermission.js';
 import { validate, vbody, vparams } from '../../middleware/validate.js';
-import * as rbac from './rbac.service.js';
+import * as rbac from './rbac.service.ts';
 
 const router = Router();
 router.use(authenticate);
