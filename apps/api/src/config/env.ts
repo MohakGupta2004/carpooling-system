@@ -42,6 +42,6 @@ export const env = {
     secure: process.env.SMTP_SECURE === 'true',
     user: process.env.SMTP_USER ?? '',
     pass: process.env.SMTP_PASS ?? '',
-    from: process.env.SMTP_FROM ?? 'RideBuddy <no-reply@rideloop.app>',
+    from: process.env.SMTP_FROM ?? 'Workway <no-reply@rideloop.app>',
   },
 } as const;

@@ -107,11 +107,11 @@ router.get(
 
     const pdf = await generateMyReportPdf(report, {
       userName: me?.fullName ?? 'Employee',
-      companyName: me?.organization?.name ?? 'RideBuddy',
+      companyName: me?.organization?.name ?? 'Workway',
       companyLogo: await fetchCompanyLogo(me?.organization?.logoUrl),
     });
 
-    sendPdf(res, `ridebuddy-my-report-${today()}.pdf`, pdf);
+    sendPdf(res, `workway-my-report-${today()}.pdf`, pdf);
   })
 );
 
@@ -241,13 +241,13 @@ router.get(
     ]);
 
     const pdf = await generateAnalyticsPdf(analytics, {
-      companyName: org?.name ?? 'RideBuddy',
+      companyName: org?.name ?? 'Workway',
       companyLogo: await fetchCompanyLogo(org?.logoUrl),
       rangeLabel: from && to ? `${formatDate(from)} - ${formatDate(to)}` : 'All time',
       generatedBy: me?.fullName ?? 'Administrator',
     });
 
-    sendPdf(res, `ridebuddy-analytics-${today()}.pdf`, pdf);
+    sendPdf(res, `workway-analytics-${today()}.pdf`, pdf);
   })
 );
 

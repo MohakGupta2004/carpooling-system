@@ -81,7 +81,7 @@ router.post(
   })
 );
 
-const UA = 'RideBuddy/1.0 (carpooling hackathon)';
+const UA = 'Workway/1.0 (carpooling hackathon)';
 
 interface Place {
   label: string;

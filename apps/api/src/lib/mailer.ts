@@ -33,16 +33,16 @@ export function welcomeAccountEmail(opts: {
   loginUrl: string;
 }) {
   return {
-    subject: 'Your RideBuddy account has been created',
+    subject: 'Your Workway account has been created',
     html: `
       <p>Hi ${opts.fullName},</p>
-      <p>An account has been created for you on RideBuddy. Here are your login credentials:</p>
+      <p>An account has been created for you on Workway. Here are your login credentials:</p>
       <ul>
         <li><strong>Email:</strong> ${opts.email}</li>
         <li><strong>Temporary password:</strong> ${opts.password}</li>
       </ul>
       <p>Please log in and change your password as soon as possible: <a href="${opts.loginUrl}">${opts.loginUrl}</a></p>
-      <p>— RideBuddy</p>
+      <p>— Workway</p>
     `,
   };
 }

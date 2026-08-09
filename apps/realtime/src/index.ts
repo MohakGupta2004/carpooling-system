@@ -15,7 +15,7 @@ async function main() {
   initRealtime(httpServer);
 
   httpServer.listen(env.port, () => {
-    logger.info(`📡 RideBuddy Realtime on http://localhost:${env.port} (${env.nodeEnv})`);
+    logger.info(`📡 Workway Realtime on http://localhost:${env.port} (${env.nodeEnv})`);
     logger.info(`   Socket.IO tracking · chat · notifications`);
   });
 

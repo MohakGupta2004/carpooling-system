@@ -1,20 +1,25 @@
+import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import PDFDocument from 'pdfkit';
 
 import type { MyReport, OrgAnalytics } from './reports.service.js';
 
-// ── Fonts: GoogleSans (all report content) ──────────────────────────────────
+/**
+ * Fonts: GoogleSans when the .ttf files are bundled, otherwise pdfkit's
+ * built-in Helvetica. The brand fonts are not redistributable, so a deployment
+ * without them must still be able to render a report rather than 500.
+ */
 const FONT_DIR = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '../../../assets/fonts'
 );
 const FONTS = {
-  regular: path.join(FONT_DIR, 'GoogleSans-Regular.ttf'),
-  medium: path.join(FONT_DIR, 'GoogleSans-Medium.ttf'),
-  semibold: path.join(FONT_DIR, 'GoogleSans-SemiBold.ttf'),
-  bold: path.join(FONT_DIR, 'GoogleSans-Bold.ttf'),
-};
+  GS: { file: path.join(FONT_DIR, 'GoogleSans-Regular.ttf'), fallback: 'Helvetica' },
+  'GS-Medium': { file: path.join(FONT_DIR, 'GoogleSans-Medium.ttf'), fallback: 'Helvetica' },
+  'GS-Semi': { file: path.join(FONT_DIR, 'GoogleSans-SemiBold.ttf'), fallback: 'Helvetica-Bold' },
+  'GS-Bold': { file: path.join(FONT_DIR, 'GoogleSans-Bold.ttf'), fallback: 'Helvetica-Bold' },
+} as const;
 
 // ── Layout constants (A4 portrait) ──────────────────────────────────────────
 const MARGIN = 40;
@@ -24,7 +29,7 @@ const PAGE_H = 841.89;
 const CW = PAGE_W - MARGIN * 2; // content width
 const PAGE_BOTTOM = PAGE_H - MARGIN - 16;
 
-// ── Palette (RideBuddy teal + chart hues) ───────────────────────────────────
+// ── Palette (Workway teal + chart hues) ───────────────────────────────────
 const P = {
   teal: '#0d9488',
   tealDark: '#0f766e',
@@ -63,12 +68,11 @@ function newDoc() {
     layout: 'portrait',
     margins: { top: MARGIN, bottom: MARGIN, left: MARGIN, right: MARGIN },
     bufferPages: true,
-    info: { Title: 'RideBuddy Analytics Report', Author: 'RideBuddy' },
+    info: { Title: 'Workway Analytics Report', Author: 'Workway' },
   });
-  doc.registerFont('GS', FONTS.regular);
-  doc.registerFont('GS-Medium', FONTS.medium);
-  doc.registerFont('GS-Semi', FONTS.semibold);
-  doc.registerFont('GS-Bold', FONTS.bold);
+  for (const [name, { file, fallback }] of Object.entries(FONTS)) {
+    doc.registerFont(name, fs.existsSync(file) ? file : fallback);
+  }
   return doc;
 }
 
@@ -82,7 +86,7 @@ function bufferDoc(doc: PDFKit.PDFDocument): Promise<Buffer> {
   });
 }
 
-/** RideBuddy brand: the sidebar leaf (hugeicons Leaf01) in a teal rounded square. */
+/** Workway brand: the sidebar leaf (hugeicons Leaf01) in a teal rounded square. */
 function drawLeafMark(doc: PDFKit.PDFDocument, x: number, y: number, s: number) {
   doc.save();
   doc.roundedRect(x, y, s, s, s * 0.26).fill(P.teal);
@@ -100,10 +104,10 @@ function drawHeader(doc: PDFKit.PDFDocument, meta: ReportMeta): number {
   const y = MARGIN;
   doc.save();
 
-  // Left: RideBuddy leaf brand
+  // Left: Workway leaf brand
   drawLeafMark(doc, LEFT, y, 34);
   doc.font('GS-Bold').fontSize(17).fillColor(P.ink);
-  doc.text('RideBuddy', LEFT + 44, y + 4, { lineBreak: false });
+  doc.text('Workway', LEFT + 44, y + 4, { lineBreak: false });
   doc.font('GS').fontSize(8).fillColor(P.gray);
   doc.text('Enterprise Carpooling', LEFT + 44, y + 22, { lineBreak: false });
 
@@ -329,7 +333,7 @@ function drawFooter(doc: PDFKit.PDFDocument, company: string) {
     doc.save();
     doc.font('GS').fontSize(6.5).fillColor(P.muted);
     doc.text(
-      `RideBuddy Analytics  ·  ${company}  ·  Page ${i + 1} of ${range.count}  ·  Confidential`,
+      `Workway Analytics  ·  ${company}  ·  Page ${i + 1} of ${range.count}  ·  Confidential`,
       LEFT,
       PAGE_H - MARGIN + 6,
       { width: CW, align: 'center', lineBreak: false }
@@ -491,7 +495,7 @@ function drawPersonalHeader(
   doc.save();
   drawLeafMark(doc, LEFT, y, 34);
   doc.font('GS-Bold').fontSize(17).fillColor(P.ink);
-  doc.text('RideBuddy', LEFT + 44, y + 4, { lineBreak: false });
+  doc.text('Workway', LEFT + 44, y + 4, { lineBreak: false });
   doc.font('GS').fontSize(8).fillColor(P.gray);
   doc.text('Personal Travel Report', LEFT + 44, y + 22, { lineBreak: false });
 

@@ -27,7 +27,7 @@ export async function uploadImage(
       ? [{ width: 512, height: 512, crop: 'limit' }]
       : [{ width: 400, height: 400, crop: 'fill', gravity: 'face' }];
   const res = await cloudinary.uploader.upload(dataUri, {
-    folder: opts.folder ?? 'ridebuddy/avatars',
+    folder: opts.folder ?? 'workway/avatars',
     resource_type: 'image',
     transformation,
   });

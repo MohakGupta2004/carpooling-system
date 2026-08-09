@@ -31,7 +31,7 @@ router.post(
     const file = (req as typeof req & { file?: Express.Multer.File }).file;
     if (!file) throw BadRequest("No image file provided (field name must be 'file')");
     const logoUrl = await uploadImage(file.buffer, file.mimetype, {
-      folder: 'ridebuddy/logos',
+      folder: 'workway/logos',
       face: false,
     });
     await prisma.organization.update({

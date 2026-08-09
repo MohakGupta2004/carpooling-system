@@ -108,7 +108,7 @@ export default function ReportsPage() {
     try {
       await api.download(
         "/reports/me/pdf",
-        `ridebuddy-my-report-${new Date().toISOString().slice(0, 10)}.pdf`
+        `workway-my-report-${new Date().toISOString().slice(0, 10)}.pdf`
       )
     } catch {
       toast.error("Could not generate your report")
