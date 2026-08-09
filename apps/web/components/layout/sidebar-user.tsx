@@ -45,7 +45,7 @@ export function SidebarUser({ collapsed }: { collapsed: boolean }) {
         aria-label="Account menu"
       >
         <Avatar className="size-8 shrink-0 border border-sidebar-border">
-          <AvatarFallback className="bg-secondary text-xs">
+          <AvatarFallback className="bg-primary/10 text-xs text-primary">
             {initials(user?.fullName)}
           </AvatarFallback>
         </Avatar>

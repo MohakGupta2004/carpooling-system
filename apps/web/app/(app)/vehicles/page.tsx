@@ -291,7 +291,7 @@ export default function VehiclesPage() {
           <Card key={v.id}>
             <CardContent className="p-5">
               <div className="flex items-start justify-between">
-                <span className="flex size-10 items-center justify-center rounded-lg bg-secondary text-primary">
+                <span className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <CarIcon className="size-5" />
                 </span>
                 {v.verification === "VERIFIED" ? (

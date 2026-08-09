@@ -1045,7 +1045,7 @@ function Info({
 }) {
   return (
     <div className="flex items-center gap-3">
-      <span className="flex size-9 items-center justify-center rounded-lg bg-secondary text-primary">
+      <span className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
         {icon}
       </span>
       <div>

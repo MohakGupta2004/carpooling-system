@@ -260,7 +260,7 @@ export default function OfferPage() {
                 {verified.map((v) => (
                   <label
                     key={v.id}
-                    className={`flex cursor-pointer items-center justify-between rounded-md border px-3 py-2 text-sm ${(vehicleId || verified[0]?.id) === v.id ? "border-primary bg-secondary" : "border-border"}`}
+                    className={`flex cursor-pointer items-center justify-between rounded-md border px-3 py-2 text-sm ${(vehicleId || verified[0]?.id) === v.id ? "border-primary bg-accent" : "border-border"}`}
                   >
                     <span className="flex items-center gap-2">
                       <input
@@ -315,7 +315,7 @@ export default function OfferPage() {
                     key={o.m}
                     type="button"
                     onClick={() => setMaxDetourM(o.m)}
-                    className={`rounded-md border px-3 py-2 text-center text-sm transition-colors ${maxDetourM === o.m ? "border-primary bg-secondary" : "border-border hover:bg-accent"}`}
+                    className={`rounded-md border px-3 py-2 text-center text-sm transition-colors ${maxDetourM === o.m ? "border-primary bg-accent" : "border-border hover:bg-accent"}`}
                   >
                     <span className="block font-medium">{o.label}</span>
                     <span className="block text-[11px] text-muted-foreground">
