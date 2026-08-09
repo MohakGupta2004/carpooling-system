@@ -14,6 +14,5 @@ export {
   SettingsIcon,
   LogoutIcon,
   EcoIcon,
-  EcoIcon as LeafBrand,
   SidebarToggleIcon,
 } from "@repo/ui/icons"

@@ -29,7 +29,6 @@ import {
   CompanyIcon,
   KeyIcon,
   EcoIcon,
-  LeafBrand,
   SidebarToggleIcon,
 } from "./navicons"
 
@@ -190,14 +189,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             )}
           >
             {!isCollapsed && (
-              <>
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground">
-                  <LeafBrand className="size-5" />
-                </span>
-                <span className="flex-1 truncate text-base font-semibold tracking-tight">
-                  Workway
-                </span>
-              </>
+              <span className="flex-1 truncate text-base font-semibold tracking-tight">
+                Workway
+              </span>
             )}
             <Tooltip>
               <TooltipTrigger
@@ -285,11 +279,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {/* Main */}
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-(--z-sticky) flex h-16 items-center justify-between border-b border-border bg-background px-6">
-            <div className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
-              <CompanyIcon className="size-4 shrink-0" />
-              <span className="truncate">
-                {user?.organization?.name ?? "Workway"}
-              </span>
+            <div className="min-w-0 truncate text-sm text-muted-foreground">
+              {user?.organization?.name ?? "Workway"}
             </div>
             <div className="flex items-center gap-3">
               {/* Eco points are a passive counter, not an active state — neutral
