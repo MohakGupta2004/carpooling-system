@@ -440,7 +440,7 @@ export default function AdminVehiclesPage() {
             <CardContent className="space-y-4 p-5">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <span className="flex size-11 items-center justify-center rounded-xl bg-secondary text-primary">
+                  <span className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
                     <CarIcon className="size-6" />
                   </span>
                   <div>

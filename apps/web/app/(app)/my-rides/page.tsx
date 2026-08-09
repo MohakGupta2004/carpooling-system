@@ -93,7 +93,7 @@ export default function MyRidesPage() {
       ) : rides.data?.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center gap-3 p-10 text-center">
-            <span className="flex size-12 items-center justify-center rounded-full bg-secondary text-primary">
+            <span className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
               <DriveIcon className="size-6" />
             </span>
             <p className="text-sm text-muted-foreground">
@@ -162,7 +162,7 @@ export default function MyRidesPage() {
                       {confirmed.map((b) => (
                         <span
                           key={b.id}
-                          className="flex items-center gap-1.5 rounded-full bg-secondary py-0.5 pr-2 pl-0.5 text-xs"
+                          className="flex items-center gap-1.5 rounded-full bg-accent py-0.5 pr-2 pl-0.5 text-xs"
                         >
                           <Avatar className="size-5">
                             <AvatarFallback className="text-[9px]">

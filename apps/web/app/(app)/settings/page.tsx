@@ -103,7 +103,7 @@ export default function SettingsPage() {
             <Link key={l.href} href={l.href}>
               <Card className="transition-colors hover:bg-accent">
                 <CardContent className="flex items-center gap-3 p-5">
-                  <span className="flex size-9 items-center justify-center rounded-lg bg-secondary text-primary">
+                  <span className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     <Icon className="size-5" />
                   </span>
                   <span className="font-medium">{l.label}</span>

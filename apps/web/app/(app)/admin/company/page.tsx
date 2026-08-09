@@ -171,7 +171,7 @@ function CompanyEditor({ c }: { c: Company }) {
           <CardTitle className="text-base">Company logo</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-wrap items-center gap-4">
-          <span className="flex size-20 items-center justify-center overflow-hidden rounded-xl border border-border bg-secondary">
+          <span className="flex size-20 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted">
             {c.logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img

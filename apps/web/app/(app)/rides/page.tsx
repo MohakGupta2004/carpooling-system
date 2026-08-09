@@ -157,7 +157,7 @@ export default function AvailableRidesPage() {
       ) : rides.data?.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center gap-3 p-10 text-center">
-            <span className="flex size-12 items-center justify-center rounded-full bg-secondary text-primary">
+            <span className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
               <RoadIcon className="size-6" />
             </span>
             <p className="text-sm text-muted-foreground">

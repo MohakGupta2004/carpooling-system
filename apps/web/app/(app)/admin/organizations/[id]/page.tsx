@@ -133,7 +133,7 @@ export default function OrgDetailPage() {
       {/* Profile + counts */}
       <Card>
         <CardContent className="flex flex-wrap items-center gap-6 p-6">
-          <span className="flex size-16 items-center justify-center overflow-hidden rounded-xl border border-border bg-secondary">
+          <span className="flex size-16 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted">
             {o.logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -335,7 +335,7 @@ function Stat({
 }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="flex size-9 items-center justify-center rounded-lg bg-secondary text-primary">
+      <span className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
         {icon}
       </span>
       <div>
