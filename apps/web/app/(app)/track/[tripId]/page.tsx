@@ -844,6 +844,7 @@ export default function TrackPage() {
                 size="icon"
                 variant="outline"
                 title={`Call ${callList[0].fullName}`}
+                nativeButton={false}
                 render={<a href={`tel:${callList[0].phone}`} />}
               >
                 <IconPhone className="size-4" />

@@ -113,7 +113,11 @@ export default function AvailableRidesPage() {
         title="Available Rides"
         description="Rides that pass near your pickup — a driver only detours a little to collect you."
         action={
-          <Button variant="outline" render={<Link href="/find" />}>
+          <Button
+            variant="outline"
+            nativeButton={false}
+            render={<Link href="/find" />}
+          >
             <SearchIcon /> Search by route
           </Button>
         }

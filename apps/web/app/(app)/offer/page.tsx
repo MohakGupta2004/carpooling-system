@@ -160,7 +160,11 @@ export default function OfferPage() {
               You need a <strong>verified vehicle</strong> before offering a
               ride.
             </p>
-            <Button className="mt-4" render={<Link href="/vehicles" />}>
+            <Button
+              className="mt-4"
+              nativeButton={false}
+              render={<Link href="/vehicles" />}
+            >
               Add a vehicle
             </Button>
           </CardContent>

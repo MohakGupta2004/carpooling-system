@@ -155,7 +155,12 @@ export default function TripDetailsPage() {
             <Badge variant={STATUS_VARIANT[t.status] ?? "secondary"}>
               {t.status.replaceAll("_", " ")}
             </Badge>
-            <Button size="sm" variant="outline" render={<Link href="/trips" />}>
+            <Button
+              size="sm"
+              variant="outline"
+              nativeButton={false}
+              render={<Link href="/trips" />}
+            >
               Back
             </Button>
           </div>

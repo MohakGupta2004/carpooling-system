@@ -278,7 +278,11 @@ export default function SettingsPage() {
               contact.
             </p>
           </div>
-          <Button variant="outline" render={<Link href="/profile" />}>
+          <Button
+            variant="outline"
+            nativeButton={false}
+            render={<Link href="/profile" />}
+          >
             Edit in profile
           </Button>
         </CardContent>

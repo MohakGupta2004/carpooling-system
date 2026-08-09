@@ -152,6 +152,7 @@ export default function TripsPage() {
                         <Button
                           size="sm"
                           variant="ghost"
+                          nativeButton={false}
                           render={<Link href={`/trips/${b.ride.trip.id}`} />}
                         >
                           View details
@@ -164,6 +165,7 @@ export default function TripsPage() {
                           <Button
                             size="sm"
                             variant="outline"
+                            nativeButton={false}
                             render={<Link href={`/track/${b.ride.trip.id}`} />}
                           >
                             Track
@@ -231,6 +233,7 @@ export default function TripsPage() {
                         <Button
                           size="sm"
                           variant="ghost"
+                          nativeButton={false}
                           render={<Link href={`/trips/${r.trip.id}`} />}
                         >
                           View details
@@ -243,6 +246,7 @@ export default function TripsPage() {
                           <Button
                             size="sm"
                             variant="outline"
+                            nativeButton={false}
                             render={<Link href={`/track/${r.trip.id}`} />}
                           >
                             Track

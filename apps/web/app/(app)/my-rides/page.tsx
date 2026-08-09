@@ -78,7 +78,7 @@ export default function MyRidesPage() {
         title="My Rides"
         description="Rides you've published as a driver."
         action={
-          <Button render={<Link href="/offer" />}>
+          <Button nativeButton={false} render={<Link href="/offer" />}>
             <PlusIcon /> Offer a ride
           </Button>
         }
@@ -99,7 +99,7 @@ export default function MyRidesPage() {
             <p className="text-sm text-muted-foreground">
               You haven&apos;t published any rides yet.
             </p>
-            <Button render={<Link href="/offer" />}>
+            <Button nativeButton={false} render={<Link href="/offer" />}>
               <PlusIcon /> Offer your first ride
             </Button>
           </CardContent>
@@ -197,6 +197,7 @@ export default function MyRidesPage() {
                         <Button
                           size="sm"
                           variant="outline"
+                          nativeButton={false}
                           render={<Link href={`/track/${r.trip.id}`} />}
                         >
                           Track / manage

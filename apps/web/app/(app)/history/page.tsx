@@ -90,6 +90,7 @@ export default function HistoryPage() {
                     <Button
                       size="sm"
                       variant="ghost"
+                      nativeButton={false}
                       render={<Link href={`/trips/${h.ride.trip.id}`} />}
                     >
                       View details
