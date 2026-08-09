@@ -52,7 +52,7 @@ function loadScript(): Promise<boolean> {
  */
 export async function openCheckout(
   order: RazorpayOrderInfo,
-  name = "RideBuddy"
+  name = "WorkWay"
 ): Promise<CheckoutResult> {
   const ok = await loadScript()
   if (!ok || !window.Razorpay) throw new Error("Could not load payment gateway")

@@ -88,7 +88,7 @@ export default function TripsPage() {
         bookingId,
         method: "UPI",
       })
-      const result = await openCheckout(order, "RideBuddy")
+      const result = await openCheckout(order, "WorkWay")
       await api.post("/payments/verify", {
         orderId: result.razorpay_order_id,
         paymentId: result.razorpay_payment_id,

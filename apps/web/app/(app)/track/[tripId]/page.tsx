@@ -369,7 +369,7 @@ export default function TrackPage() {
         bookingId: myBooking!.id,
         method: "UPI",
       })
-      const r = await openCheckout(order, "RideBuddy")
+      const r = await openCheckout(order, "WorkWay")
       await api.post("/payments/verify", {
         orderId: r.razorpay_order_id,
         paymentId: r.razorpay_payment_id,

@@ -41,7 +41,7 @@ export default function WalletPage() {
         { amount }
       )
       if (order.fallback) return // gateway off — server credited directly (dev)
-      const result = await openCheckout(order, "RideBuddy Wallet")
+      const result = await openCheckout(order, "WorkWay Wallet")
       await api.post("/wallet/recharge/verify", {
         orderId: result.razorpay_order_id,
         paymentId: result.razorpay_payment_id,
