@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/ui/select"
+import { GroupLabel } from "@repo/ui/group-label"
 import { LocationPicker, type Place } from "@/components/maps/location-picker"
 
 interface Me {
@@ -370,9 +371,7 @@ function Section({
 }) {
   return (
     <section>
-      <p className="mb-3 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-        {title}
-      </p>
+      <GroupLabel className="mb-3">{title}</GroupLabel>
       {children}
     </section>
   )

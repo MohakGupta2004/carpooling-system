@@ -30,10 +30,7 @@ export function FeaturesSection() {
     <section id="platform" className="border-b border-border/80">
       <div className="mx-auto max-w-6xl px-6 py-20">
         <div className="max-w-xl">
-          <h2
-            className="text-3xl font-semibold tracking-tight text-foreground"
-            style={{ fontFamily: "var(--font-heading)" }}
-          >
+          <h2 className="text-3xl font-semibold tracking-tight text-foreground">
             Everything the commute needs, nothing it doesn&apos;t
           </h2>
           <p className="mt-3 text-muted-foreground">
@@ -43,6 +40,9 @@ export function FeaturesSection() {
         </div>
 
         <div className="mt-12 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+          {/* No numbers here: these are six parallel capabilities, not a
+              sequence. Numbering them would duplicate the how-it-works
+              treatment, where the order actually carries meaning. */}
           {features.map((feature) => (
             <div key={feature.title}>
               <h3 className="text-base font-medium text-foreground">

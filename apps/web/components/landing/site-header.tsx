@@ -17,10 +17,7 @@ export function SiteHeader() {
           <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground">
             W
           </span>
-          <span
-            className="text-base font-semibold tracking-tight"
-            style={{ fontFamily: "var(--font-heading)" }}
-          >
+          <span className="text-base font-semibold tracking-tight">
             Workway
           </span>
         </Link>

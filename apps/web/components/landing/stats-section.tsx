@@ -11,10 +11,7 @@ export function StatsSection() {
       <div className="mx-auto grid max-w-6xl grid-cols-2 divide-x divide-y divide-border/80 border-border/80 px-6 md:grid-cols-4 md:divide-y-0">
         {stats.map((stat) => (
           <div key={stat.label} className="px-4 py-8 first:pl-0 sm:px-6">
-            <p
-              className="text-2xl font-semibold text-foreground sm:text-3xl"
-              style={{ fontFamily: "var(--font-heading)" }}
-            >
+            <p className="text-2xl font-semibold text-foreground sm:text-3xl">
               {stat.value}
             </p>
             <p className="mt-1 text-sm text-muted-foreground">{stat.label}</p>

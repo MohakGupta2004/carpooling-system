@@ -8,14 +8,11 @@ export function HeroSection() {
     <section className="border-b border-border/80">
       <div className="mx-auto grid max-w-6xl gap-14 px-6 py-20 md:grid-cols-[1.1fr_0.9fr] md:items-center md:py-28">
         <div>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-xs text-muted-foreground">
+          <span className="inline-flex items-center rounded-md border border-border bg-card px-2.5 py-1 text-xs text-muted-foreground">
             Now rolling out to Bengaluru offices
           </span>
 
-          <h1
-            className="mt-6 text-4xl leading-[1.08] font-semibold tracking-tight text-foreground sm:text-5xl"
-            style={{ fontFamily: "var(--font-heading)" }}
-          >
+          <h1 className="mt-6 text-4xl leading-[1.08] font-semibold tracking-tight text-foreground sm:text-5xl">
             Your colleagues are already
             <br />
             driving your route.

@@ -27,6 +27,7 @@ import {
   CarIcon,
   RouteIcon,
 } from "@repo/ui/icons"
+import { GroupLabel } from "@repo/ui/group-label"
 
 interface Org {
   id: string
@@ -181,9 +182,7 @@ export default function OrganizationsPage() {
                 />
               </Field>
             </div>
-            <p className="mt-6 mb-3 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-              First Company Admin
-            </p>
+            <GroupLabel className="mt-6 mb-3">First company admin</GroupLabel>
             <div className="grid gap-4 sm:grid-cols-3">
               <Field label="Admin name">
                 <Input

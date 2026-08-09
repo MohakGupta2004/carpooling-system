@@ -7,6 +7,7 @@ import { api } from "@/lib/api"
 import { MAPS_KEY, useMaps } from "./use-maps"
 import { cn } from "@/lib/utils"
 import { Input } from "@repo/ui/input"
+import { GroupLabel } from "@repo/ui/group-label"
 import {
   PinIcon,
   SearchIcon,
@@ -262,9 +263,7 @@ export function LocationPicker({
             {/* Saved places */}
             {(saved.data?.length ?? 0) > 0 && q.length < 3 && (
               <div className="border-b border-border py-1">
-                <p className="px-3 pt-2 pb-1 text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
-                  Saved places
-                </p>
+                <GroupLabel className="px-3 pt-2 pb-1">Saved places</GroupLabel>
                 {saved.data!.map((s) => {
                   const Icon = savedIcon(s.label)
                   return (

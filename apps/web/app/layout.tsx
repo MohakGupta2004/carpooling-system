@@ -1,21 +1,18 @@
 import type { Metadata } from "next"
-import { Host_Grotesk, Space_Grotesk, Geist_Mono } from "next/font/google"
+import { Host_Grotesk, Geist_Mono } from "next/font/google"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
 import { Providers } from "@/components/providers"
 
+// One family for headings, body, labels and data. A display/body pair is the
+// wrong tool here: the two grotesques it replaces were near-identical, which
+// reads as an accident rather than a pairing. Hierarchy comes from weight.
 const hostGrotesk = Host_Grotesk({
   subsets: ["latin"],
-  variable: "--font-heading",
-  weight: ["300", "400", "500", "600", "700"],
-})
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
   variable: "--font-sans",
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700"],
 })
 
 const fontMono = Geist_Mono({
@@ -43,7 +40,6 @@ export default function RootLayout({
       className={cn(
         "antialiased",
         hostGrotesk.variable,
-        spaceGrotesk.variable,
         fontMono.variable,
         "font-sans"
       )}
