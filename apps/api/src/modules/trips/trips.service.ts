@@ -56,10 +56,21 @@ export async function createBooking(orgId: string, passengerId: string, input: C
       ? await tx.booking.update({ where: { id: existing.id }, data })
       : await tx.booking.create({ data: { rideId: ride.id, passengerId, ...data } });
     if (confirmed) {
-      const seatsLeft = ride.seatsAvailable - input.seats;
-      await tx.ride.update({
-        where: { id: ride.id },
-        data: { seatsAvailable: seatsLeft, status: seatsLeft === 0 ? 'FULL' : 'PUBLISHED' },
+      // Reserve seats safely.
+      const reservation = await tx.ride.updateMany({
+        where: {
+          id: ride.id,
+          organizationId: orgId,
+          status: 'PUBLISHED',
+          seatsAvailable: { gte: input.seats },
+        },
+        data: { seatsAvailable: { decrement: input.seats } },
+      });
+      if (reservation.count === 0) throw BadRequest('Not enough seats');
+
+      await tx.ride.updateMany({
+        where: { id: ride.id, seatsAvailable: 0 },
+        data: { status: 'FULL' },
       });
       await tx.trip.upsert({
         where: { rideId: ride.id },
@@ -103,13 +114,28 @@ export async function approveBooking(
     return { status: 'REJECTED' };
   }
 
-  if (booking.ride.seatsAvailable < booking.seats) throw BadRequest('Seats no longer available');
   await prisma.$transaction(async (tx) => {
-    await tx.booking.update({ where: { id: bookingId }, data: { status: 'CONFIRMED' } });
-    const seatsLeft = booking.ride.seatsAvailable - booking.seats;
-    await tx.ride.update({
-      where: { id: booking.rideId },
-      data: { seatsAvailable: seatsLeft, status: seatsLeft === 0 ? 'FULL' : 'PUBLISHED' },
+    // Reserve seats safely.
+    const reservation = await tx.ride.updateMany({
+      where: {
+        id: booking.rideId,
+        organizationId: orgId,
+        status: 'PUBLISHED',
+        seatsAvailable: { gte: booking.seats },
+      },
+      data: { seatsAvailable: { decrement: booking.seats } },
+    });
+    if (reservation.count === 0) throw BadRequest('Seats no longer available');
+
+    const confirmed = await tx.booking.updateMany({
+      where: { id: bookingId, status: 'REQUESTED' },
+      data: { status: 'CONFIRMED' },
+    });
+    if (confirmed.count === 0) throw BadRequest('Booking is no longer pending');
+
+    await tx.ride.updateMany({
+      where: { id: booking.rideId, seatsAvailable: 0 },
+      data: { status: 'FULL' },
     });
     await tx.trip.upsert({
       where: { rideId: booking.rideId },
