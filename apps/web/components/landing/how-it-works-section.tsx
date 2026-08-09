@@ -21,10 +21,7 @@ export function HowItWorksSection() {
     <section id="how-it-works" className="border-b border-border/80">
       <div className="mx-auto max-w-6xl px-6 py-20">
         <div className="max-w-xl">
-          <h2
-            className="text-3xl font-semibold tracking-tight text-foreground"
-            style={{ fontFamily: "var(--font-heading)" }}
-          >
+          <h2 className="text-3xl font-semibold tracking-tight text-foreground">
             Set up in an afternoon, not a quarter
           </h2>
           <p className="mt-3 text-muted-foreground">

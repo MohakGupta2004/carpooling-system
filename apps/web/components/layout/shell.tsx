@@ -191,10 +191,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           >
             {!isCollapsed && (
               <>
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground">
                   <LeafBrand className="size-5" />
                 </span>
-                <span className="flex-1 truncate text-lg font-semibold tracking-tight">
+                <span className="flex-1 truncate text-base font-semibold tracking-tight">
                   Workway
                 </span>
               </>
@@ -223,7 +223,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             {groups.map((group) => (
               <div key={group.section}>
                 {!isCollapsed && (
-                  <div className="mb-1 px-3 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
+                  <div className="mb-1 px-3 text-xs font-medium text-muted-foreground">
                     {group.section}
                   </div>
                 )}
@@ -238,15 +238,25 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       <Link
                         href={item.href}
                         aria-label={item.label}
+                        // Carries the current page to assistive tech, and lets the
+                        // tint below be a reinforcement rather than the only signal.
+                        aria-current={active ? "page" : undefined}
                         className={cn(
-                          "group flex items-center gap-3 rounded-md text-sm transition-colors",
+                          "group flex items-center gap-3 rounded-md text-sm transition-colors duration-(--duration-fast)",
                           isCollapsed ? "justify-center p-2" : "px-3 py-2",
                           active
                             ? "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
-                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"
                         )}
                       >
-                        <Icon className="size-5 shrink-0" />
+                        <Icon
+                          className={cn(
+                            "size-5 shrink-0",
+                            active
+                              ? "text-sidebar-primary"
+                              : "text-muted-foreground"
+                          )}
+                        />
                         {!isCollapsed && item.label}
                       </Link>
                     )
@@ -274,25 +284,28 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         {/* Main */}
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="flex h-16 items-center justify-between border-b border-border bg-card/50 px-6 backdrop-blur">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <CompanyIcon className="size-4" />
-              {user?.organization?.name ?? "Workway"}
+          <header className="sticky top-0 z-(--z-sticky) flex h-16 items-center justify-between border-b border-border bg-background px-6">
+            <div className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
+              <CompanyIcon className="size-4 shrink-0" />
+              <span className="truncate">
+                {user?.organization?.name ?? "Workway"}
+              </span>
             </div>
             <div className="flex items-center gap-3">
-              {/* Subtle on-brand chip — neutral pill + teal leaf, matches the toolbar */}
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-foreground shadow-xs">
-                <EcoIcon className="size-3.5 text-primary" />
-                {user?.ecoPoints ?? 0}
-                <span className="font-normal text-muted-foreground">
-                  eco pts
+              {/* Eco points are a passive counter, not an active state — neutral
+                  chrome, with the figure itself carrying the emphasis. */}
+              <span className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1 text-xs text-muted-foreground">
+                <EcoIcon className="size-3.5" />
+                <span className="font-medium text-foreground tabular-nums">
+                  {user?.ecoPoints ?? 0}
                 </span>
+                eco pts
               </span>
               <NotificationBell />
             </div>
           </header>
 
-          <main className="min-w-0 flex-1 p-6">{children}</main>
+          <main className="min-w-0 flex-1 p-6 lg:p-8">{children}</main>
         </div>
       </div>
     </TooltipProvider>

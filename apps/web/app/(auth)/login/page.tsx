@@ -3,7 +3,6 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { motion, type Variants } from "motion/react"
 import { toast } from "react-hot-toast"
 import { api } from "@/lib/api"
 import { useAuth, type Me } from "@/stores/auth"
@@ -22,28 +21,26 @@ import {
   EyeOffIcon,
 } from "@repo/ui/icons"
 
-const container: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08, delayChildren: 0.1 },
-  },
-}
-
-const item: Variants = {
-  hidden: { opacity: 0, y: 12 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { type: "spring", stiffness: 300, damping: 24 },
-  },
-}
-
+// Specific and checkable, not aspirational. "Reduce your carbon footprint" was
+// the eco-brand reflex; the impact belongs in a figure on the dashboard, not as
+// a mood on the sign-in screen.
 const features = [
-  { icon: CarIcon, text: "Share rides with colleagues" },
-  { icon: RouteIcon, text: "Optimized daily routes" },
-  { icon: UsersIcon, text: "Company-wide ride network" },
-  { icon: EcoIcon, text: "Reduce your carbon footprint" },
+  {
+    icon: RouteIcon,
+    text: "Matched on route overlap and shift timing, not just your office address",
+  },
+  {
+    icon: CarIcon,
+    text: "Drivers see the full route and detour before committing to a pickup",
+  },
+  {
+    icon: UsersIcon,
+    text: "Everyone joins with a verified work email — no strangers in the car",
+  },
+  {
+    icon: EcoIcon,
+    text: "Fuel and tolls split automatically the moment a trip ends",
+  },
 ]
 
 export default function LoginPage() {
@@ -74,120 +71,74 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen">
-      {/* Left panel — brand gradient with features */}
-      <div className="relative hidden w-1/2 overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-secondary p-12 lg:flex lg:flex-col lg:justify-between">
-        {/* Decorative circles */}
-        <div className="absolute -top-24 -left-24 size-64 rounded-full bg-white/5" />
-        <div className="absolute -right-32 -bottom-32 size-96 rounded-full bg-white/5" />
-        <div className="absolute top-1/2 left-1/3 size-48 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/[0.03]" />
+      {/*
+        A flat primary slab, not a gradient. The previous version was the
+        stock B2B-SaaS auth screen: diagonal gradient, three floating
+        translucent circles, frosted-glass icon tiles, an aspirational pull
+        quote. All of it decoration, none of it information.
 
-        {/* Logo */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-          className="relative z-10"
-        >
-          <Link href="/" className="inline-flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-xl bg-white/15 backdrop-blur-sm">
-              <CarIcon className="size-5 text-white" />
-            </div>
-            <span
-              className="text-xl font-semibold text-white"
-              style={{ fontFamily: "var(--font-heading)" }}
-            >
-              Workway
-            </span>
-          </Link>
-        </motion.div>
-
-        {/* Tagline & features */}
-        <motion.div
-          variants={container}
-          initial="hidden"
-          animate="visible"
-          className="relative z-10 max-w-md"
-        >
-          <motion.h2
-            variants={item}
-            className="text-4xl leading-tight font-semibold text-white"
-            style={{ fontFamily: "var(--font-heading)" }}
-          >
-            Commute smarter,
-            <br />
-            together.
-          </motion.h2>
-          <motion.p variants={item} className="mt-4 text-base text-white/70">
-            Join your company&apos;s Workway network and make every commute
-            count.
-          </motion.p>
-
-          <div className="mt-10 space-y-4">
-            {features.map((feat, i) => (
-              <motion.div
-                key={feat.text}
-                variants={item}
-                custom={i}
-                className="flex items-center gap-3"
-              >
-                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-white/10 backdrop-blur-sm">
-                  <feat.icon className="size-4 text-white" />
-                </div>
-                <span className="text-sm text-white/80">{feat.text}</span>
-              </motion.div>
-            ))}
+        What replaces it says something a prospective user can act on: the
+        three things the product actually does, and the constraint that makes
+        it credible. Colour is committed rather than blended.
+      */}
+      <div className="hidden w-1/2 flex-col justify-between bg-primary p-12 lg:flex">
+        <Link href="/" className="inline-flex items-center gap-3">
+          <div className="flex size-9 items-center justify-center rounded-md bg-primary-foreground/15">
+            <CarIcon className="size-5 text-primary-foreground" />
           </div>
-        </motion.div>
+          <span className="text-lg font-semibold text-primary-foreground">
+            Workway
+          </span>
+        </Link>
 
-        {/* Bottom quote */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="relative z-10 text-xs text-white/50"
-        >
-          &ldquo;The best commute is the one you don&apos;t have to drive
-          alone.&rdquo;
-        </motion.p>
+        <div className="max-w-md">
+          <h2 className="text-3xl leading-tight font-semibold text-primary-foreground">
+            Your colleagues are already driving your route.
+          </h2>
+
+          <ul className="mt-10 space-y-5">
+            {features.map((feat) => (
+              <li key={feat.text} className="flex items-start gap-3">
+                <feat.icon className="mt-0.5 size-4 shrink-0 text-primary-foreground/60" />
+                <span className="text-sm leading-relaxed text-primary-foreground/85">
+                  {feat.text}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <p className="text-xs text-primary-foreground/60">
+          Free for the first 25 commuters. Priced per active rider after that.
+        </p>
       </div>
 
       {/* Right panel — login form */}
       <div className="flex flex-1 flex-col justify-center px-6 py-12 sm:px-12 lg:px-20">
-        <motion.div
-          variants={container}
-          initial="hidden"
-          animate="visible"
-          className="mx-auto w-full max-w-sm"
-        >
+        <div className="mx-auto w-full max-w-sm">
           {/* Mobile logo */}
-          <motion.div variants={item} className="mb-10 lg:hidden">
+          <div className="mb-10 lg:hidden">
             <Link href="/" className="inline-flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10">
+              <div className="flex size-9 items-center justify-center rounded-md bg-primary/10">
                 <CarIcon className="size-5 text-primary" />
               </div>
-              <span
-                className="text-xl font-semibold text-foreground"
-                style={{ fontFamily: "var(--font-heading)" }}
-              >
+              <span className="text-xl font-semibold text-foreground">
                 Workway
               </span>
             </Link>
-          </motion.div>
+          </div>
 
-          <motion.div variants={item}>
-            <h1
-              className="text-3xl font-semibold tracking-tight text-foreground"
-              style={{ fontFamily: "var(--font-heading)" }}
-            >
+          <div>
+            <h1 className="text-3xl font-semibold tracking-tight text-foreground">
               Welcome back
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
               Sign in to your Workway account
             </p>
-          </motion.div>
+          </div>
 
           <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-5">
-            <motion.div variants={item} className="space-y-2">
+            <div className="space-y-2">
               <Label htmlFor="email">Work email</Label>
               <div className="relative">
                 <MailIcon className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -196,15 +147,15 @@ export default function LoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="h-11 rounded-lg border border-border bg-background pl-9 text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary"
+                  className="h-11 pl-9"
                   placeholder="you@company.com"
                   autoComplete="email"
                   required
                 />
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div variants={item} className="space-y-2">
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
                 <button
@@ -221,7 +172,7 @@ export default function LoginPage() {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="h-11 rounded-lg border border-border bg-background pr-10 pl-9 text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary"
+                  className="h-11 pr-10 pl-9"
                   placeholder="••••••••"
                   autoComplete="current-password"
                   required
@@ -239,33 +190,27 @@ export default function LoginPage() {
                   )}
                 </button>
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div variants={item} className="pt-2">
+            <div className="pt-2">
               <Button
                 type="submit"
                 size="lg"
-                className="w-full py-4 text-lg text-white"
+                className="w-full"
                 disabled={loading}
               >
                 {loading && <SpinnerIcon className="size-4 animate-spin" />}
                 Sign in
               </Button>
-            </motion.div>
+            </div>
           </form>
 
-          <motion.p
-            variants={item}
-            className="mt-6 text-center text-xs text-muted-foreground"
-          >
+          <p className="mt-6 text-center text-xs text-muted-foreground">
             Accounts are provisioned by your company admin.
-          </motion.p>
+          </p>
 
           {/* Demo accounts */}
-          <motion.div
-            variants={item}
-            className="mt-8 rounded-2xl border border-border bg-muted/30 p-4"
-          >
+          <div className="mt-8 rounded-2xl border border-border bg-muted/30 p-4">
             <p className="text-xs font-medium text-foreground">
               Demo credentials
             </p>
@@ -291,8 +236,8 @@ export default function LoginPage() {
                 shubhodeep@odoo.com
               </div>
             </div>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </div>
     </div>
   )

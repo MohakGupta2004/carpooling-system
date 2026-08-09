@@ -1,7 +1,4 @@
-import {
-  PageHeaderSkeleton,
-  CardGridSkeleton,
-} from "@repo/ui/page-skeleton"
+import { PageHeaderSkeleton, CardGridSkeleton } from "@repo/ui/page-skeleton"
 
 export default function Loading() {
   return (

@@ -28,10 +28,7 @@ export function SiteFooter() {
               <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground">
                 W
               </span>
-              <span
-                className="text-base font-semibold tracking-tight text-foreground"
-                style={{ fontFamily: "var(--font-heading)" }}
-              >
+              <span className="text-base font-semibold tracking-tight text-foreground">
                 Workway
               </span>
             </div>

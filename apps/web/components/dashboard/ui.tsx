@@ -80,24 +80,18 @@ export function DashboardHero({
   action?: React.ReactNode
 }) {
   return (
-    <div
-      className={cn(
-        "relative overflow-hidden border-l-2 border-eco bg-card p-6 ring-1 ring-foreground/5",
-        surface
-      )}
-    >
-      {/* Soft colour wash — decoration only, never blocks clicks. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 bg-gradient-to-r from-eco/10 via-transparent to-secondary/5"
-      />
-      <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    // Previously a left accent stripe plus a gradient wash. Neither encoded
+    // anything, and both fired on every dashboard. The heading carries the page.
+    <div className={cn("bg-card p-6 ring-1 ring-foreground/5", surface)}>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <h1 className="truncate font-heading text-2xl font-semibold tracking-tight">
+          <h1 className="truncate text-2xl font-semibold tracking-tight">
             {title}
           </h1>
           {description && (
-            <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+            <p className="mt-1 max-w-[70ch] text-sm text-muted-foreground">
+              {description}
+            </p>
           )}
         </div>
         {action && <div className="flex shrink-0 gap-2">{action}</div>}
@@ -196,7 +190,9 @@ export function LinkRow({
   return (
     <Link
       href={href}
-      className="group flex items-center gap-3 border-l-2 border-transparent px-5 py-3 transition-colors hover:border-eco hover:bg-accent"
+      // Hover was signalled twice: a background tint and a left stripe that
+      // appeared out of nowhere. The tint alone is the standard row affordance.
+      className="group flex items-center gap-3 px-5 py-3 transition-colors duration-(--duration-fast) hover:bg-accent"
     >
       <IconBadge icon={icon} accent={accent} />
       <div className="min-w-0 flex-1">
@@ -261,12 +257,12 @@ export function ActionCard({
   return (
     <Link href={href}>
       <Card
+        // Accent lives in the icon tile and the count badge, both already
+        // present. A left stripe repeating it is decoration, not information.
         className={cn(
-          "border-l-2 transition-colors hover:bg-accent",
+          "transition-colors duration-(--duration-fast) hover:bg-accent",
           surface,
-          accent === "warning"
-            ? "border-warning ring-warning/40"
-            : "border-info ring-info/40"
+          accent === "warning" ? "ring-warning/40" : "ring-info/40"
         )}
       >
         <CardContent className="flex items-center gap-3">
@@ -293,14 +289,14 @@ export function LoadError({ children }: { children: React.ReactNode }) {
   return (
     <Card
       size="sm"
-      className={cn(
-        "border-l-2 border-destructive ring-destructive/30",
-        surface
-      )}
+      // Error state is carried by the icon, the wording and a full destructive
+      // ring — not by a stripe down one edge.
+      role="alert"
+      className={cn("bg-destructive/5 ring-destructive/40", surface)}
     >
       <CardContent className="flex items-center gap-2 text-sm">
         <SosIcon className="size-4 shrink-0 text-destructive" />
-        <span className="text-muted-foreground">
+        <span className="text-foreground">
           {children} Refresh to try again.
         </span>
       </CardContent>

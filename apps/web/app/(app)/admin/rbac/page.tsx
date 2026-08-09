@@ -12,6 +12,7 @@ import { Badge } from "@repo/ui/badge"
 import { Switch } from "@repo/ui/switch"
 import { Skeleton } from "@repo/ui/skeleton"
 import { KeyIcon, VerifiedIcon } from "@repo/ui/icons"
+import { GroupLabel } from "@repo/ui/group-label"
 
 interface Permission {
   id: string
@@ -164,9 +165,7 @@ export default function RbacPage() {
             ) : (
               grouped.map(([resource, list]) => (
                 <div key={resource}>
-                  <p className="mb-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                    {resource}
-                  </p>
+                  <GroupLabel className="mb-2">{resource}</GroupLabel>
                   <div className="grid gap-2 sm:grid-cols-2">
                     {list.map((p) => (
                       <label

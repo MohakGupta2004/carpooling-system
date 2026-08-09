@@ -12,6 +12,7 @@ import { Card, CardContent } from "@repo/ui/card"
 import { Button } from "@repo/ui/button"
 import { Badge } from "@repo/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/avatar"
+import { GroupLabel } from "@repo/ui/group-label"
 
 interface Party {
   id: string
@@ -371,9 +372,7 @@ export default function TripDetailsPage() {
         <div className="space-y-6">
           <Card>
             <CardContent className="space-y-4 p-6">
-              <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                Driver
-              </p>
+              <GroupLabel>Driver</GroupLabel>
               <div className="flex items-center gap-3">
                 <Avatar className="size-12">
                   <AvatarImage
@@ -412,9 +411,7 @@ export default function TripDetailsPage() {
           {myBooking && (
             <Card>
               <CardContent className="space-y-2 p-6">
-                <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                  Payment
-                </p>
+                <GroupLabel>Payment</GroupLabel>
                 <Line label="Amount" value={inr(myBooking.fareAmount)} />
                 <Line label="Method" value={myBooking.payment?.method ?? "—"} />
                 <div className="flex items-center justify-between">

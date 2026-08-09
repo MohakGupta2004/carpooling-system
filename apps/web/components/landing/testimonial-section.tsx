@@ -2,10 +2,7 @@ export function TestimonialSection() {
   return (
     <section className="border-b border-border/80 bg-muted/40">
       <div className="mx-auto max-w-3xl px-6 py-20 text-center">
-        <p
-          className="text-2xl leading-snug font-medium text-foreground sm:text-3xl"
-          style={{ fontFamily: "var(--font-heading)" }}
-        >
+        <p className="text-2xl leading-snug font-medium text-foreground sm:text-3xl">
           &ldquo;Parking demand at our Manyata office dropped enough that we
           shelved a planned lot expansion. It paid for itself before we even ran
           the numbers.&rdquo;

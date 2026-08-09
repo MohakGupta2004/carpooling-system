@@ -21,7 +21,9 @@ function PageHeader({
     >
       <div className="min-w-0">
         <h1 className="truncate text-xl font-semibold tracking-tight">{title}</h1>
-        {description && <p className="text-muted-foreground mt-1 text-sm">{description}</p>}
+        {description && (
+          <p className="text-muted-foreground mt-1 max-w-[70ch] text-sm">{description}</p>
+        )}
       </div>
       {action && <div className="shrink-0">{action}</div>}
     </div>
