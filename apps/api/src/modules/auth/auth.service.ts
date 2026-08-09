@@ -55,10 +55,18 @@ export async function register(input: RegisterInput) {
 }
 
 export async function verifyEmail(email: string, otp: string) {
-  const user = await prisma.user.findFirst({ where: { email } });
-  if (!user) throw NotFound('User not found');
+  // (organizationId, email) is the unique key — the same address can exist in two
+  // organizations, so the OTP is what picks the account, not the address alone.
+  const candidates = await prisma.user.findMany({ where: { email } });
+  if (candidates.length === 0) throw NotFound('User not found');
+
+  const user = candidates.find((u) => u.otpCode === otp);
+  if (!user) {
+    if (candidates.every((u) => u.emailVerified)) return { verified: true };
+    throw BadRequest('Invalid or expired OTP');
+  }
   if (user.emailVerified) return { verified: true };
-  if (user.otpCode !== otp || !user.otpExpiresAt || user.otpExpiresAt < new Date())
+  if (!user.otpExpiresAt || user.otpExpiresAt < new Date())
     throw BadRequest('Invalid or expired OTP');
 
   await prisma.user.update({
@@ -68,11 +76,32 @@ export async function verifyEmail(email: string, otp: string) {
   return { verified: true };
 }
 
-export async function login(email: string, password: string, ctx: { ua?: string; ip?: string }) {
-  const user = await prisma.user.findFirst({ where: { email } });
-  if (!user || !user.passwordHash) throw Unauthorized('Invalid credentials');
-  const okPw = await verifyPassword(user.passwordHash, password);
-  if (!okPw) throw Unauthorized('Invalid credentials');
+export async function login(
+  email: string,
+  password: string,
+  ctx: { ua?: string; ip?: string },
+  organizationSlug?: string
+) {
+  // Users are unique per (organizationId, email), so one address may belong to
+  // several organizations. Picking the first row would hand the caller a token
+  // for an arbitrary company — resolve it deliberately instead.
+  const candidates = await prisma.user.findMany({
+    where: {
+      email,
+      ...(organizationSlug ? { organization: { slug: organizationSlug } } : {}),
+    },
+  });
+
+  const matches: typeof candidates = [];
+  for (const candidate of candidates) {
+    if (!candidate.passwordHash) continue;
+    if (await verifyPassword(candidate.passwordHash, password)) matches.push(candidate);
+  }
+  if (matches.length === 0) throw Unauthorized('Invalid credentials');
+  if (matches.length > 1)
+    throw BadRequest('This email belongs to multiple organizations — provide organizationSlug');
+
+  const user = matches[0]!;
   if (user.status === 'SUSPENDED') throw Unauthorized('Account suspended');
 
   const tokens = await issueSession(user.id, user.organizationId, user.email, ctx);

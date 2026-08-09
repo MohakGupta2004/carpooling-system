@@ -41,11 +41,17 @@ authRouter.post(
   authLimiter,
   validate({ body: loginSchema }),
   asyncHandler(async (req, res) => {
-    const { email, password } = vbody<{ email: string; password: string }>(req);
-    const result = await auth.login(email, password, {
-      ua: req.headers['user-agent'],
-      ip: req.ip,
-    });
+    const { email, password, organizationSlug } = vbody<{
+      email: string;
+      password: string;
+      organizationSlug?: string;
+    }>(req);
+    const result = await auth.login(
+      email,
+      password,
+      { ua: req.headers['user-agent'], ip: req.ip },
+      organizationSlug
+    );
     res.cookie(REFRESH_COOKIE, result.refreshToken, cookieOpts);
     ok(res, {
       accessToken: result.accessToken,

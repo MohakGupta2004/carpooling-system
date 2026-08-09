@@ -164,6 +164,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   )
   const isCollapsed = hydrated && collapsed
 
+  // Super Admins are platform operators — their home org is an implementation
+  // detail, never surfaced as "their company".
+  const isSuper = permissions.has("org:manage")
+
   const groups = NAV.map((g) => ({
     ...g,
     items: g.items.filter(
@@ -280,7 +284,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-(--z-sticky) flex h-16 items-center justify-between border-b border-border bg-background px-6">
             <div className="min-w-0 truncate text-sm text-muted-foreground">
-              {user?.organization?.name ?? "Workway"}
+              {isSuper ? "Platform" : (user?.organization?.name ?? "Workway")}
             </div>
             <div className="flex items-center gap-3">
               {/* Eco points are a passive counter, not an active state — neutral

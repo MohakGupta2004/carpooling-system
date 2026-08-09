@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useParams } from "next/navigation"
+import { useParams, useSearchParams } from "next/navigation"
 import { useQuery } from "@tanstack/react-query"
 import { api } from "@/lib/api"
 import { inr } from "@/lib/utils"
@@ -78,9 +78,12 @@ const vBadge = (v: string): "eco" | "destructive" | "warning" =>
 
 export default function EmployeeDetailPage() {
   const { id } = useParams<{ id: string }>()
+  // Carried over from the roster when a Super Admin is browsing another company.
+  const orgId = useSearchParams().get("orgId") ?? ""
+  const orgQuery = orgId ? `?orgId=${encodeURIComponent(orgId)}` : ""
   const q = useQuery({
-    queryKey: ["employee", id],
-    queryFn: () => api.get<EmployeeDetail>(`/admin/employees/${id}`),
+    queryKey: ["employee", id, orgId || "self"],
+    queryFn: () => api.get<EmployeeDetail>(`/admin/employees/${id}${orgQuery}`),
     enabled: !!id,
   })
 

@@ -13,6 +13,9 @@ export type RegisterInput = z.infer<typeof registerSchema>;
 export const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),
+  // Emails are unique per organization, not globally. Only needed when the same
+  // address exists in more than one organization.
+  organizationSlug: z.string().min(2).optional(),
 });
 export type LoginInput = z.infer<typeof loginSchema>;
 

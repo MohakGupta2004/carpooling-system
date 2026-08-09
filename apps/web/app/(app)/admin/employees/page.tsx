@@ -82,20 +82,43 @@ export default function EmployeesPage() {
   const [passwordMode, setPasswordMode] = useState<"manual" | "generate">(
     "manual"
   )
+  // Super Admins have no company of their own — they pick which one they are
+  // looking at, and every read/write below is scoped to that choice. Company
+  // Admins never send `orgId`, so the API pins them to their own organization.
+  const [orgId, setOrgId] = useState<string>("")
+  const orgQuery = orgId ? `?orgId=${encodeURIComponent(orgId)}` : ""
+
+  const orgList = useQuery({
+    queryKey: ["orgs-lite"],
+    queryFn: () =>
+      api.get<{ id: string; name: string }[]>("/admin/organizations"),
+    enabled: isSuperAdmin,
+  })
+  const orgOptions = [
+    { value: "__self", label: "My organization" },
+    ...(orgList.data ?? []).map((o) => ({ value: o.id, label: o.name })),
+  ]
 
   const employees = useQuery({
-    queryKey: ["employees"],
-    queryFn: () => api.get<Employee[]>("/admin/employees"),
+    queryKey: ["employees", orgId || "self"],
+    queryFn: () => api.get<Employee[]>(`/admin/employees${orgQuery}`),
   })
   const company = useQuery({
-    queryKey: ["company-departments"],
-    queryFn: () => api.get<{ departments: Department[] }>("/companies/me"),
+    queryKey: ["company-departments", orgId || "self"],
+    // Departments belong to the company being edited; a Super Admin working
+    // inside another company gets that company's list.
+    queryFn: () =>
+      orgId
+        ? api
+            .get<{ departments: Department[] }>(`/admin/organizations/${orgId}`)
+            .then((o) => ({ departments: o.departments }))
+        : api.get<{ departments: Department[] }>("/companies/me"),
     enabled: canCreate,
   })
 
   const act = useMutation({
     mutationFn: ({ id, verb }: { id: string; verb: "approve" | "suspend" }) =>
-      api.post(`/admin/employees/${id}/${verb}`),
+      api.post(`/admin/employees/${id}/${verb}${orgQuery}`),
     onSuccess: () => {
       toast.success("Updated")
       qc.invalidateQueries({ queryKey: ["employees"] })
@@ -105,7 +128,7 @@ export default function EmployeesPage() {
 
   const createUser = useMutation({
     mutationFn: () =>
-      api.post<{ emailSent: boolean }>("/admin/users", {
+      api.post<{ emailSent: boolean }>(`/admin/users${orgQuery}`, {
         ...form,
         departmentId: form.departmentId || undefined,
       }),
@@ -150,11 +173,31 @@ export default function EmployeesPage() {
         title="Employees"
         description="Approve, suspend, and review your organization's members."
         action={
-          canCreate && (
-            <Button size="sm" onClick={() => setShowForm((v) => !v)}>
-              {showForm ? "Close" : "Add account"}
-            </Button>
-          )
+          <div className="flex items-center gap-2">
+            {isSuperAdmin && (
+              <Select
+                items={orgOptions}
+                value={orgId || "__self"}
+                onValueChange={(v) => setOrgId(!v || v === "__self" ? "" : v)}
+              >
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {orgOptions.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>
+                      {o.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            {canCreate && (
+              <Button size="sm" onClick={() => setShowForm((v) => !v)}>
+                {showForm ? "Close" : "Add account"}
+              </Button>
+            )}
+          </div>
         }
       />
 
@@ -358,7 +401,9 @@ export default function EmployeesPage() {
                       size="sm"
                       variant="outline"
                       nativeButton={false}
-                      render={<Link href={`/admin/employees/${e.id}`} />}
+                      render={
+                        <Link href={`/admin/employees/${e.id}${orgQuery}`} />
+                      }
                     >
                       View details
                     </Button>

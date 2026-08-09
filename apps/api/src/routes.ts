@@ -13,6 +13,7 @@ import {
 } from './modules/misc/misc.route.ts';
 import organizationsRoutes from './modules/organizations/organizations.route.ts';
 import paymentsRoutes from './modules/payments/payments.routes.ts';
+import rbacRoutes from './modules/rbac/rbac.route.ts';
 import reportsRoutes from './modules/reports/reports.routes.js';
 import rideRoutes from './modules/rides/rides.route.ts';
 import { bookingsRouter, tripsRouter } from './modules/trips/trips.route.ts';
@@ -40,3 +41,4 @@ api.use('/vehicles', vehiclesRouter);
 api.use('/rides', rideRoutes);
 api.use('/wallet', walletRoutes);
 api.use('/payments', paymentsRoutes);
+api.use('/admin/rbac', rbacRoutes);

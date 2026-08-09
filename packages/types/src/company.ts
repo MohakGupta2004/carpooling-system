@@ -7,10 +7,25 @@ export const fuelCostRules = z.object({
   evPricePerKwh: z.number().default(9),
 });
 
+/**
+ * A bare email domain — "acme.co", never "someone@acme.co". Registration
+ * auto-join compares this against the part after `@` in the signup address,
+ * so anything holding an `@` silently matches nobody.
+ */
+export const emailDomain = z
+  .string()
+  .min(3)
+  .max(120)
+  .toLowerCase()
+  .regex(
+    /^(?!-)[a-z0-9-]+(?<!-)(\.(?!-)[a-z0-9-]+(?<!-))+$/,
+    'must be a bare domain like "acme.co" — no "@", no scheme, no path'
+  );
+
 export const updateCompanySchema = z.object({
   name: z.string().min(2).max(160).optional(),
   logoUrl: z.string().url().optional(),
-  domain: z.string().optional(),
+  domain: emailDomain.optional(),
   workingHours: z
     .object({
       start: z.string(),
@@ -39,7 +54,7 @@ export const createOrgSchema = z.object({
     .min(2)
     .max(60)
     .regex(/^[a-z0-9-]+$/, 'lowercase letters, numbers, hyphens'),
-  domain: z.string().min(3).max(120),
+  domain: emailDomain,
   // first Company Admin provisioned with the org
   adminName: z.string().min(2).max(120),
   adminEmail: z.string().email(),
@@ -49,7 +64,7 @@ export type CreateOrgInput = z.infer<typeof createOrgSchema>;
 
 export const updateOrgSchema = z.object({
   name: z.string().min(2).max(160).optional(),
-  domain: z.string().min(3).max(120).optional(),
+  domain: emailDomain.optional(),
   status: z.enum(['ACTIVE', 'SUSPENDED']).optional(),
 });
 export type UpdateOrgInput = z.infer<typeof updateOrgSchema>;

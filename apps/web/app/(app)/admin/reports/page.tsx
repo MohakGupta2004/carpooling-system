@@ -195,10 +195,18 @@ export default function OrgAnalyticsPage() {
     placeholderData: (prev) => prev, // keep charts visible while refetching
   })
 
+  // Base UI resolves the trigger's label from `items` — without it the raw
+  // value (the org id) is what shows once a company is picked.
+  const orgOptions = [
+    { value: "__self", label: "My organization" },
+    ...(orgList.data ?? []).map((o) => ({ value: o.id, label: o.name })),
+  ]
+
   const filterBar = (
     <div className="flex flex-wrap items-center gap-2">
       {isSuper && (
         <Select
+          items={orgOptions}
           value={orgId || "__self"}
           onValueChange={(v) => setOrgId(!v || v === "__self" ? "" : v)}
         >
@@ -206,10 +214,9 @@ export default function OrgAnalyticsPage() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="__self">My organization</SelectItem>
-            {orgList.data?.map((o) => (
-              <SelectItem key={o.id} value={o.id}>
-                {o.name}
+            {orgOptions.map((o) => (
+              <SelectItem key={o.value} value={o.value}>
+                {o.label}
               </SelectItem>
             ))}
           </SelectContent>

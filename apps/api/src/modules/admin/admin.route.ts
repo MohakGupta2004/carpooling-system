@@ -5,11 +5,12 @@ import {
   updateVehicleSchema,
 } from '@carpool/types';
 import { Prisma } from '@prisma/client';
+import type { Request } from 'express';
 import { Router } from 'express';
 import { z } from 'zod';
 
 import { env } from '../../config/env.js';
-import { BadRequest, Conflict, NotFound } from '../../lib/errors.js';
+import { BadRequest, Conflict, Forbidden, NotFound } from '../../lib/errors.js';
 import { asyncHandler, created, ok } from '../../lib/http.js';
 import { sendMail, welcomeAccountEmail } from '../../lib/mailer.js';
 import { hashPassword } from '../../lib/password.js';
@@ -18,19 +19,35 @@ import { authenticate } from '../../middleware/authenticate.js';
 import { requirePermission } from '../../middleware/requirePermission.js';
 import { validate, vbody, vparams, vquery } from '../../middleware/validate.js';
 import { notifyUser } from '../../realtime/emit.ts';
+import { getEffectivePermissions } from '../rbac/rbac.service.js';
 
 const router = Router();
 router.use(authenticate);
 const idParam = z.object({ id: z.string() });
 
+/**
+ * Whose people to operate on. A Company Admin is always pinned to their own
+ * organization; a Super Admin (the `org:manage` permission) may pass `?orgId=`
+ * to work inside a specific company. Mirrors `resolveOrgId` in the reports module.
+ */
+async function resolveOrgId(req: Request): Promise<string> {
+  const myOrgId = req.user!.organizationId;
+  const requestedOrgId = req.query.orgId ? String(req.query.orgId) : null;
+  if (!requestedOrgId || requestedOrgId === myOrgId) return myOrgId;
+
+  const permissions = await getEffectivePermissions(req.user!.id, myOrgId);
+  if (!permissions.has('org:manage')) throw Forbidden('Not allowed to view another organization');
+  return requestedOrgId;
+}
+
 // ---- Create an account (Super Admin adds a Company Admin, etc.) ----
 router.post(
   '/users',
   requirePermission('user:create'),
-  validate({ body: createUserSchema }),
+  validate({ body: createUserSchema, query: z.object({ orgId: z.string().optional() }) }),
   asyncHandler(async (req, res) => {
     const { fullName, email, password, role, departmentId } = vbody<CreateUserInput>(req);
-    const orgId = req.user!.organizationId;
+    const orgId = await resolveOrgId(req);
 
     const exists = await prisma.user.findUnique({
       where: { organizationId_email: { organizationId: orgId, email } },
@@ -76,15 +93,21 @@ router.get(
   // Admin-only roster (Company Admin / Super Admin) — regular employees hold
   // `user:read` for co-worker profiles but not `user:approve`, so they can't list here.
   requirePermission('user:approve'),
-  validate({ query: z.object({ status: z.enum(['PENDING', 'ACTIVE', 'SUSPENDED']).optional() }) }),
+  validate({
+    query: z.object({
+      status: z.enum(['PENDING', 'ACTIVE', 'SUSPENDED']).optional(),
+      orgId: z.string().optional(),
+    }),
+  }),
   asyncHandler(async (req, res) => {
     const { status } = vquery<{ status?: 'PENDING' | 'ACTIVE' | 'SUSPENDED' }>(req);
+    const orgId = await resolveOrgId(req);
     ok(
       res,
       await prisma.user.findMany({
         // Super Admins are platform operators, not company employees — never list them.
         where: {
-          organizationId: req.user!.organizationId,
+          organizationId: orgId,
           deletedAt: null,
           ...(status ? { status } : {}),
           NOT: { roles: { some: { role: { key: 'SUPER_ADMIN' } } } },
@@ -110,10 +133,10 @@ router.get(
 router.get(
   '/employees/:id',
   requirePermission('user:approve'),
-  validate({ params: idParam }),
+  validate({ params: idParam, query: z.object({ orgId: z.string().optional() }) }),
   asyncHandler(async (req, res) => {
     const id = vparams<{ id: string }>(req).id;
-    const orgId = req.user!.organizationId;
+    const orgId = await resolveOrgId(req);
     const user = await prisma.user.findFirst({
       // Super Admins are never viewable as company employees.
       where: {
@@ -196,10 +219,10 @@ router.get(
 router.post(
   '/employees/:id/approve',
   requirePermission('user:approve'),
-  validate({ params: idParam }),
+  validate({ params: idParam, query: z.object({ orgId: z.string().optional() }) }),
   asyncHandler(async (req, res) => {
     await prisma.user.updateMany({
-      where: { id: vparams<{ id: string }>(req).id, organizationId: req.user!.organizationId },
+      where: { id: vparams<{ id: string }>(req).id, organizationId: await resolveOrgId(req) },
       data: { status: 'ACTIVE' },
     });
     ok(res, { approved: true });
@@ -209,10 +232,10 @@ router.post(
 router.post(
   '/employees/:id/suspend',
   requirePermission('user:suspend'),
-  validate({ params: idParam }),
+  validate({ params: idParam, query: z.object({ orgId: z.string().optional() }) }),
   asyncHandler(async (req, res) => {
     await prisma.user.updateMany({
-      where: { id: vparams<{ id: string }>(req).id, organizationId: req.user!.organizationId },
+      where: { id: vparams<{ id: string }>(req).id, organizationId: await resolveOrgId(req) },
       data: { status: 'SUSPENDED' },
     });
     ok(res, { suspended: true });
