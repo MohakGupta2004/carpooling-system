@@ -6,8 +6,29 @@ import { logger } from './logger.js';
 
 const BASE = 'https://api.razorpay.com/v1';
 
+/** Razorpay key ids are "rzp_test_"/"rzp_live_" + exactly 14 alphanumerics. */
+const KEY_ID_RE = /^rzp_(test|live)_[A-Za-z0-9]{14}$/;
+let warnedMalformedKey = false;
+
+/**
+ * True only for credentials that are actually usable. Placeholder values like
+ * `rzp_test_..._xxx` are treated as "not configured" so callers fall back to the
+ * dev flow instead of failing with a 401 from the gateway.
+ */
 export function isRazorpayConfigured(): boolean {
-  return Boolean(env.razorpay.keyId && env.razorpay.keySecret);
+  const { keyId, keySecret } = env.razorpay;
+  if (!keyId || !keySecret) return false;
+  if (!KEY_ID_RE.test(keyId)) {
+    if (!warnedMalformedKey) {
+      warnedMalformedKey = true;
+      logger.warn(
+        { keyId: `${keyId.slice(0, 9)}…` },
+        'RAZORPAY_KEY_ID is malformed — payments disabled, using dev fallback'
+      );
+    }
+    return false;
+  }
+  return true;
 }
 
 function authHeader(): string {

@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { z } from 'zod';
 
-import { BadRequest } from '../../lib/errors.js';
+import { env } from '../../config/env.js';
+import { AppError, BadRequest } from '../../lib/errors.js';
 import { asyncHandler, ok } from '../../lib/http.js';
 import { prisma } from '../../lib/prisma.js';
 import {
@@ -60,6 +61,10 @@ router.post(
     const wallet = await ensureWallet(req.user!.id);
 
     if (!isRazorpayConfigured()) {
+      // Never hand out free credit on a real deployment — a missing or malformed
+      // key in prod is a misconfiguration, not a dev convenience.
+      if (env.isProd)
+        throw new AppError(503, 'PAYMENTS_UNAVAILABLE', 'Payments are temporarily unavailable');
       const updated = await creditWallet(wallet.id, amount, 'Wallet recharge (dev)');
       return ok(res, { fallback: true, wallet: updated });
     }
